@@ -7,7 +7,6 @@ defmodule Percussion.Decorators do
 
   def help(%Request{arguments: arguments} = request, help) do
     if "--help" in arguments do
-      help = Utils.to_codeblock(help, "markdown")
       Request.halt(request, help)
     else
       request
