@@ -29,6 +29,17 @@ defmodule Percussion.Router do
 
   """
 
+  @module quote(do: __MODULE__)
+
+  @doc """
+  See `Percussion.Router.command/3`.
+  """
+  defmacro command(match, preamble) when is_list(preamble) do
+    quote do
+      command(unquote(match), nil, unquote(preamble))
+    end
+  end
+
   @doc """
   Defines a command dispatcher that matches on `match`.
 
@@ -39,12 +50,12 @@ defmodule Percussion.Router do
 
       command "hello"
 
-      command "foo",
-        preamble: [help: @help, whitelist_guilds: [123_456_789, 987_654_321]]
+      # Pipes through `help` and `whitelist_guilds`.
+      command "foo", help: @help, whitelist_guilds: [123_456_789, 987_654_321]
 
       # Adding a wildcard command, even if empty, is a good idea to prevent match
       # errors.
-      command _any, as: :wildcard
+      command _any, :wildcard
 
       def hello(%Request{} = request) do
         Request.reply(request, "Hello world!")
@@ -59,13 +70,14 @@ defmodule Percussion.Router do
       end
 
   """
-  defmacro command(match, options \\ [])
+  defmacro command(match, function \\ nil, preamble \\ [])
 
-  defmacro command(match, options) do
-    preamble = Keyword.get(options, :preamble, [])
-    function = Keyword.get_lazy(options, :as, fn -> String.to_atom(match) end)
+  defmacro command(match, nil, preamble) when is_list(preamble) do
+    do_command(match, @module, String.to_atom(match), preamble)
+  end
 
-    do_command(match, quote(do: __MODULE__), function, preamble)
+  defmacro command(match, function, preamble) when is_atom(function) do
+    do_command(match, @module, function, preamble)
   end
 
   @doc """
@@ -76,7 +88,7 @@ defmodule Percussion.Router do
       redirect "foo", FooHandler
 
       # Pipes through `trim/2` and `prettify/2` before redirecting.
-      redirect "bar", [:trim, :prettify], to: FooHandler
+      redirect "bar", FooHandler, preamble: [whitelist_guilds: [123_456_789, 987_654_321]]
 
       # Wildcard redirections are also possible.
       redirect _any, FooHandler
@@ -94,7 +106,7 @@ defmodule Percussion.Router do
   defp do_command(match, module, function, decorators) do
     body =
       quote do
-        unquote(module).unquote(function)(request)
+        unquote(module).unquote(function)(request, nil)
       end
 
     quote do
