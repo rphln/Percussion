@@ -2,14 +2,15 @@ defmodule Percussion.Router do
   @moduledoc """
   Macro helpers to define command routes and pipelines.
 
-  Each command and redirect may have their `Percussion.Request` pass through
-  a transformation pipeline, specified through their respective `:decorators` option.
-
-  Preamble functions must accept an request and an option argument, and return the
+  Decorator functions must accept an request and an option argument, and return the
   transformed request. If the `halt` attribute is set on the request, the pipeline
   will stop prematurely.
 
   ## Examples
+
+      def ignore(%Request{} = request, _opt) do
+        Request.halt(request, "Not implemented!")
+      end
 
       def whitelist_guilds(%Request{message: message} = request, whitelist) do
         if message.guild_id in whitelist do
@@ -32,21 +33,20 @@ defmodule Percussion.Router do
   @module quote(do: __MODULE__)
 
   @doc """
-  Defines a command dispatcher that matches on `match`.
-
-  The variable `request` is available in the command context and represents the
-  `Percussion.Request` that triggered the call.
+  Defines a command dispatcher that matches on `name`.
 
   ## Examples
 
       command "hello"
 
       # Pipes through `help` and `whitelist_guilds`.
-      command "foo", help: @help, whitelist_guilds: [123_456_789, 987_654_321]
+      command "foo",
+        help: @help,
+        whitelist_guilds: [123_456_789, 987_654_321]
 
-      # Adding a wildcard command, even if empty, is a good idea to prevent match
-      # errors.
-      command _any, :wildcard, []
+      # Passing decorators like so is also possible; in this case, their second
+      # argument is nil.
+      command "baz", [:ignore]
 
       def hello(%Request{} = request) do
         Request.reply(request, "Hello world!")
@@ -56,32 +56,38 @@ defmodule Percussion.Router do
         Request.reply(request, "bar")
       end
 
+  """
+  defmacro command(name, decorators \\ []) when is_list(decorators) do
+    quote_dispatch(name, @module, String.to_atom(name), decorators)
+  end
+
+  @doc """
+  Defines a command dispatcher that matches on `name` and invokes `target`. See
+  `Percussion.Router.command/2`.
+
+  ## Examples
+
+      alias "hello", :world
+
+      # Adding a wildcard command, even if empty, is a good idea to prevent match
+      # errors.
+      alias _any, :wildcard
+
+      def world(%Request{} = request) do
+        Request.reply(request, "Hello world!")
+      end
+
       def wildcard(%Request{} = request) do
         Request.reply(request, "Error! Command not found.")
       end
 
   """
-  defmacro command(match, function, decorators)
-
-  defmacro command(match, nil, decorators) do
-    do_command(match, @module, String.to_atom(match), decorators)
-  end
-
-  defmacro command(match, function, decorators) do
-    do_command(match, @module, function, decorators)
+  defmacro alias(name, target, decorators \\ []) do
+    quote_dispatch(name, @module, target, decorators)
   end
 
   @doc """
-  See `Percussion.Router.command/3`.
-  """
-  defmacro command(match, decorators \\ []) when is_list(decorators) do
-    quote do
-      command(unquote(match), nil, unquote(decorators))
-    end
-  end
-
-  @doc """
-  Redirects a command request another router.
+  Redirects a request another router.
 
   ## Examples
 
@@ -95,14 +101,14 @@ defmodule Percussion.Router do
 
   """
   defmacro redirect(match, module, decorators) do
-    do_command(match, module, :dispatch, decorators)
+    quote_dispatch(match, module, :dispatch, decorators)
   end
 
-  defp do_command(match, module, function, decorators) do
+  defp quote_dispatch(match, module, function, decorators) do
     quote do
-      def dispatch(%Percussion.Request{invoked_with: unquote(match)} = request, nil) do
+      def dispatch(%Percussion.Request{invoked_with: unquote(match)} = request) do
         Percussion.Pipeline.with unquote(decorators) do
-          unquote(module).unquote(function)(request, nil)
+          unquote(module).unquote(function)(request)
         end
       end
     end
