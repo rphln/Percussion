@@ -100,7 +100,7 @@ defmodule Percussion.Router do
       redirect _any, FooHandler
 
   """
-  defmacro redirect(match, module, decorators) do
+  defmacro redirect(match, module, decorators \\ []) do
     quote_dispatch(match, module, :dispatch, decorators)
   end
 
