@@ -1,6 +1,5 @@
 defmodule Percussion.Decorators do
   alias Percussion.Request
-  alias Percussion.Utils
 
   alias Nostrum.Api
   alias Nostrum.Cache.GuildCache
@@ -54,7 +53,7 @@ defmodule Percussion.Decorators do
   @doc """
   Combines `in_guild?/2` and `whitelist_guilds/2`.
   """
-  def in_whitelisted_guild?(%Request{message: message} = request, whitelist) do
+  def in_whitelisted_guild?(%Request{} = request, whitelist) do
     with %Request{halt: false} = request <- in_guild?(request, true),
          %Request{halt: false} = request <- whitelist_guilds(request, whitelist) do
       request
