@@ -67,11 +67,11 @@ defmodule Percussion.Router do
 
   ## Examples
 
-      alias "hello", :world
+      match "hello", :world
 
       # Adding a wildcard command, even if empty, is a good idea to prevent match
       # errors.
-      alias _any, :wildcard
+      match _any, :wildcard
 
       def world(%Request{} = request) do
         Request.reply(request, "Hello world!")
@@ -82,7 +82,7 @@ defmodule Percussion.Router do
       end
 
   """
-  defmacro alias(name, target, decorators \\ []) do
+  defmacro match(name, target, decorators \\ []) do
     quote_dispatch(name, @module, target, decorators)
   end
 
