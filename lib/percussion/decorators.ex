@@ -52,6 +52,16 @@ defmodule Percussion.Decorators do
   end
 
   @doc """
+  Combines `in_guild?/2` and `whitelist_guilds/2`.
+  """
+  def in_whitelisted_guild?(%Request{message: message} = request, whitelist) do
+    with %Request{halt: false} = request <- in_guild?(request, true),
+         %Request{halt: false} = request <- whitelist_guilds(request, whitelist) do
+      request
+    end
+  end
+
+  @doc """
   Limits the command to users with specified permission.
   """
   def whitelist_users(%Request{message: message} = request, whitelist) do

@@ -3,7 +3,7 @@ defmodule Percussion.Router do
   Macro helpers to define command routes and pipelines.
 
   Each command and redirect may have their `Percussion.Request` pass through
-  a transformation pipeline, specified through their respective `:preamble` option.
+  a transformation pipeline, specified through their respective `:decorators` option.
 
   Preamble functions must accept an request and an option argument, and return the
   transformed request. If the `halt` attribute is set on the request, the pipeline
@@ -32,15 +32,6 @@ defmodule Percussion.Router do
   @module quote(do: __MODULE__)
 
   @doc """
-  See `Percussion.Router.command/3`.
-  """
-  defmacro command(match, preamble) when is_list(preamble) do
-    quote do
-      command(unquote(match), nil, unquote(preamble))
-    end
-  end
-
-  @doc """
   Defines a command dispatcher that matches on `match`.
 
   The variable `request` is available in the command context and represents the
@@ -55,7 +46,7 @@ defmodule Percussion.Router do
 
       # Adding a wildcard command, even if empty, is a good idea to prevent match
       # errors.
-      command _any, :wildcard
+      command _any, :wildcard, []
 
       def hello(%Request{} = request) do
         Request.reply(request, "Hello world!")
@@ -70,14 +61,23 @@ defmodule Percussion.Router do
       end
 
   """
-  defmacro command(match, function \\ nil, preamble \\ [])
+  defmacro command(match, function, decorators)
 
-  defmacro command(match, nil, preamble) when is_list(preamble) do
-    do_command(match, @module, String.to_atom(match), preamble)
+  defmacro command(match, nil, decorators) do
+    do_command(match, @module, String.to_atom(match), decorators)
   end
 
-  defmacro command(match, function, preamble) when is_atom(function) do
-    do_command(match, @module, function, preamble)
+  defmacro command(match, function, decorators) do
+    do_command(match, @module, function, decorators)
+  end
+
+  @doc """
+  See `Percussion.Router.command/3`.
+  """
+  defmacro command(match, decorators \\ []) when is_list(decorators) do
+    quote do
+      command(unquote(match), nil, unquote(decorators))
+    end
   end
 
   @doc """
@@ -87,79 +87,24 @@ defmodule Percussion.Router do
 
       redirect "foo", FooHandler
 
-      # Pipes through `trim/2` and `prettify/2` before redirecting.
-      redirect "bar", FooHandler, preamble: [whitelist_guilds: [123_456_789, 987_654_321]]
+      # Pipes through `whitelist_guilds/2` before redirecting.
+      redirect "bar", FooHandler, whitelist_guilds: [123_456_789, 987_654_321]
 
       # Wildcard redirections are also possible.
       redirect _any, FooHandler
 
   """
-  defmacro redirect(match, module, options \\ [])
-
-  defmacro redirect(match, module, options) do
-    preamble = Keyword.get(options, :preamble, [])
-    function = Keyword.get(options, :as, :dispatch)
-
-    do_command(match, module, function, preamble)
+  defmacro redirect(match, module, decorators) do
+    do_command(match, module, :dispatch, decorators)
   end
 
   defp do_command(match, module, function, decorators) do
-    body =
-      quote do
-        unquote(module).unquote(function)(request, nil)
-      end
-
     quote do
       def dispatch(%Percussion.Request{invoked_with: unquote(match)} = request, nil) do
-        unquote(wrap(body, decorators))
+        Percussion.Pipeline.with unquote(decorators) do
+          unquote(module).unquote(function)(request, nil)
+        end
       end
     end
-  end
-
-  ## Decorator functions.
-
-  defp wrap(body, decorators) do
-    decorators
-    |> Enum.reverse()
-    |> Enum.reduce(body, fn decorator, acc ->
-      decorator
-      |> ensure_decorator_opts()
-      |> quote_decorator_call()
-      |> quote_halt_handler(acc)
-    end)
-  end
-
-  defp quote_halt_handler(call, body) do
-    quote do
-      case unquote(call) do
-        %Percussion.Request{halt: true} = request ->
-          request
-
-        %Percussion.Request{halt: false} = request ->
-          unquote(body)
-
-        _ ->
-          raise unquote("Expected `#{Macro.to_string(call)}` to return a `Percussion.Request`.")
-      end
-    end
-  end
-
-  ## Helper functions.
-
-  defp quote_decorator_call({fun, opt}) do
-    quote do: unquote(fun)(request, unquote(opt))
-  end
-
-  defp ensure_decorator_opts(fun) when is_atom(fun) do
-    {fun, nil}
-  end
-
-  defp ensure_decorator_opts({fun, _opt} = decorator) when is_atom(fun) do
-    decorator
-  end
-
-  defp ensure_decorator_opts(decorator) do
-    raise ArgumentError,
-      message: "`#{inspect(decorator)}` must be an atom or a tuple of an atom and term."
   end
 end
