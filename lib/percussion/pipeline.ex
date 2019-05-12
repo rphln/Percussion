@@ -1,9 +1,18 @@
 defmodule Percussion.Pipeline do
   @moduledoc false
 
-  defmacro with(decorators, do: expr) do
-    {:with, meta, body} = wrap_with(expr)
-    {:with, meta, inject(decorators, body)}
+  defmacro with(_request, [], do: expr) do
+    expr
+  end
+
+  defmacro with(request, decorators, do: expr) do
+    {:with, meta, body} = wrap_with(expr, request)
+    with_ = {:with, meta, inject(decorators, body)}
+
+    quote do
+      request = unquote(request)
+      unquote(with_)
+    end
   end
 
   defp inject(decorators, expr) do
@@ -20,9 +29,10 @@ defmodule Percussion.Pipeline do
     end
   end
 
-  defp wrap_with(expr) do
+  defp wrap_with(expr, request) do
     quote do
       with do
+        unquote(request) = request
         unquote(expr)
       else
         %Percussion.Request{halt: true} = request ->

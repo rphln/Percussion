@@ -30,6 +30,8 @@ defmodule Percussion.Router do
 
   """
 
+  require Percussion.Pipeline
+
   @module quote(do: __MODULE__)
 
   @doc """
@@ -106,8 +108,10 @@ defmodule Percussion.Router do
 
   defp quote_dispatch(match, module, function, decorators) do
     quote do
+      require Percussion.Pipeline
+
       def dispatch(%Percussion.Request{invoked_with: unquote(match)} = request) do
-        Percussion.Pipeline.with unquote(decorators) do
+        Percussion.Pipeline.with request, unquote(decorators) do
           unquote(module).unquote(function)(request)
         end
       end
