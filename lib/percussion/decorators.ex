@@ -84,10 +84,26 @@ defmodule Percussion.Decorators do
 
     matches =
       arguments
-      |> Enum.map(&Map.get(roles, casefold(&1)))
-      |> Enum.filter(&(&1 != nil))
+      |> Enum.map(&casefold/1)
+      |> Enum.map(&Map.get(roles, &1))
 
-    Request.assign(request, roles: matches)
+    if Enum.any?(matches, &is_nil/1) do
+      Request.halt(request, "Error! One or more roles could not be found.")
+    else
+      Request.assign(request, roles: matches)
+    end
+  end
+
+  @doc """
+  Limits matched roles to the whitelist. Must be used in conjunction to
+  `parse_role_names/2`.
+  """
+  def whitelist_roles(%Request{assigns: assigns} = request, whitelist) do
+    if match = Enum.find(assigns.roles, &(&1.name not in whitelist)) do
+      Request.halt(request, "Error! Role `#{match.name}` is not assignable.")
+    else
+      request
+    end
   end
 
   defp casefold(string) when is_bitstring(string) do
