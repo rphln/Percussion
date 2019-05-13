@@ -43,10 +43,15 @@ defmodule Percussion.Decorators do
   Limits the command to the whitelisted guilds.
   """
   def whitelist_guilds(%Request{message: message} = request, whitelist) do
-    if message.guild_id in whitelist do
-      request
-    else
-      Request.halt(request, "This command can't be used in this server.")
+    cond do
+      is_nil(message.guild_id) ->
+        request
+
+      message.guild_id in whitelist ->
+        request
+
+      true ->
+        Request.halt(request, "This command can't be used in this server.")
     end
   end
 
@@ -82,16 +87,14 @@ defmodule Percussion.Decorators do
       |> Enum.map(fn {_id, role} -> {casefold(role.name), role} end)
       |> Enum.into(%{})
 
-    matches =
-      arguments
-      |> Enum.map(&casefold/1)
-      |> Enum.map(&Map.get(roles, &1))
+    keys = Enum.map(arguments, &casefold/1)
 
-    if Enum.any?(matches, &is_nil/1) do
-      Request.halt(request, "Error! One or more roles could not be found.")
-    else
-      Request.assign(request, roles: matches)
-    end
+    roles =
+      roles
+      |> Map.take(keys)
+      |> Map.values()
+
+    Request.assign(request, roles: roles)
   end
 
   @doc """
@@ -100,7 +103,7 @@ defmodule Percussion.Decorators do
   """
   def whitelist_roles(%Request{assigns: assigns} = request, whitelist) do
     if match = Enum.find(assigns.roles, &(&1.name not in whitelist)) do
-      Request.halt(request, "Error! Role `#{match.name}` is not assignable.")
+      Request.halt(request, "Error! Role `#{match.name}` is not whitelisted.")
     else
       request
     end
