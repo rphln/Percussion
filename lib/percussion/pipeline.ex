@@ -1,61 +1,60 @@
 defmodule Percussion.Pipeline do
   @moduledoc false
 
-  defmacro with(_request, [], do: expr) do
-    expr
+  alias Percussion.Request
+
+  ## Evaluation.
+
+  @doc """
+  Applies each element in `pipeline` to `request`, returning the final result.
+
+  This function returns when an element of `pipeline` is exhausted, or if any of its
+  elements halts the request.
+  """
+  def fold(pipeline, request) do
+    Enum.reduce_while(pipeline, request, &apply_pipe/2)
   end
 
-  defmacro with(request, decorators, do: expr) do
-    {:with, meta, body} = wrap_with(expr, request)
-    with_ = {:with, meta, inject(decorators, body)}
+  defp apply_pipe(fun, request) do
+    case response = Request.map(request, fun) do
+      %Request{halt: false} ->
+        {:cont, response}
 
-    quote do
-      request = unquote(request)
-      unquote(with_)
+      %Request{halt: true} ->
+        {:halt, response}
+
+      _ ->
+        raise "Expected `#{inspect(fun)}` to return a `Percussion.Request`."
     end
   end
 
-  defp inject(decorators, expr) do
-    decorators
-    |> Enum.reverse()
-    |> Enum.reduce(expr, fn decorator, acc ->
-      [decorator |> ensure_decorator_opts() |> to_clause() | acc]
-    end)
+  ## Pipeline shorthand.
+
+  @doc """
+  Expands a pipeline in shorthand form.
+  """
+  defmacro expand(pipeline) do
+    for pipe <- pipeline do
+      pipe |> ensure_pipe_opts() |> to_clause()
+    end
   end
 
   defp to_clause({fun, opt}) do
     quote do
-      %Percussion.Request{halt: false} = request <- unquote(fun)(request, unquote(opt))
+      &unquote(fun)(&1, unquote(opt))
     end
   end
 
-  defp wrap_with(expr, request) do
-    quote do
-      with do
-        unquote(request) = request
-        unquote(expr)
-      else
-        %Percussion.Request{halt: true} = request ->
-          request
-
-        _ ->
-          raise unquote("Expected decorators to return a `Percussion.Request`.")
-      end
-    end
-  end
-
-  ## Helper functions.
-
-  defp ensure_decorator_opts(fun) when is_atom(fun) do
+  defp ensure_pipe_opts(fun) when is_atom(fun) do
     {fun, nil}
   end
 
-  defp ensure_decorator_opts({fun, _opt} = decorator) when is_atom(fun) do
-    decorator
+  defp ensure_pipe_opts({fun, _opt} = pipe) when is_atom(fun) do
+    pipe
   end
 
-  defp ensure_decorator_opts(decorator) do
+  defp ensure_pipe_opts(pipe) do
     raise ArgumentError,
-      message: "`#{inspect(decorator)}` must be an atom or a tuple of an atom and term."
+      message: "`#{inspect(pipe)}` must be an atom or a tuple of an atom and term."
   end
 end

@@ -70,4 +70,14 @@ defmodule Percussion.Request do
     request
     |> assign(response: response)
   end
+
+  @doc """
+  Maps a `request` by applying a function if it's not halted, otherwise leave it
+  untouched.
+  """
+  def map(request, fun)
+
+  def map(%Request{halt: false} = request, fun), do: fun.(request)
+
+  def map(%Request{halt: true} = request, _fun), do: request
 end
