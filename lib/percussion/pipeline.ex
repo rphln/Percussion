@@ -41,7 +41,7 @@ defmodule Percussion.Pipeline do
 
   defp to_clause({fun, opt}) do
     quote do
-      &unquote(fun)(&1, unquote(opt))
+      fn request -> unquote(fun)(request, unquote(opt)) end
     end
   end
 
