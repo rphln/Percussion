@@ -13,7 +13,7 @@ defmodule Percussion.Utils do
 
   def guild_roles_by_name(%Percussion.Request{message: message}) do
     message.guild_id
-    |> Nostrum.GuildCache.get!()
+    |> Nostrum.Cache.GuildCache.get!()
     |> guild_roles_by_name()
   end
 

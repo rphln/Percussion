@@ -3,8 +3,8 @@ defmodule Percussion.Request do
   A bot command request.
   """
 
-  alias Nostrum.Struct.Message
   alias Percussion.Request
+  alias Nostrum.Struct.Message
 
   defstruct arguments: [],
             assigns: %{},
@@ -67,8 +67,7 @@ defmodule Percussion.Request do
   Equivalent to assigning `response` with `assign/2`.
   """
   def reply(%Request{} = request, response) do
-    request
-    |> assign(response: response)
+    assign(request, response: response)
   end
 
   @doc """

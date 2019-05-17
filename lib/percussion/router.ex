@@ -30,6 +30,28 @@ defmodule Percussion.Router do
 
   """
 
+  alias Percussion.Request
+
+  @doc """
+  Executes the pipeline for the given `t:Percussion.Request.t/0`.
+  """
+  @callback dispatch(request :: Request.t()) :: Request.t()
+
+  def __using__(_opts) do
+    quote do
+      @behaviour Percussion.Router
+
+      import Percussion.Router
+
+      require Percussion.Pipeline
+
+      alias Percussion.Request
+      alias Percussion.Pipeline
+
+      Module.register_attribute(__MODULE__, :pipe, accumulate: true)
+    end
+  end
+
   @module quote(do: __MODULE__)
 
   @doc """
@@ -62,8 +84,9 @@ defmodule Percussion.Router do
   end
 
   @doc """
-  Defines a command dispatcher that matches on `name` and invokes `target`. See
-  `Percussion.Router.command/2`.
+  Defines a command dispatcher that matches on `name` and invokes `target`.
+
+  See `Percussion.Router.command/2`.
 
   ## Examples
 
@@ -106,15 +129,15 @@ defmodule Percussion.Router do
 
   defp quote_dispatch(match, module, function, decorators) do
     quote do
-      require Percussion.Pipeline
+      @impl true
 
-      def dispatch(%Percussion.Request{invoked_with: unquote(match)} = request) do
+      def dispatch(%Request{invoked_with: unquote(match)} = request) do
         fun = &unquote(module).unquote(function)(&1)
 
-        unquote(decorators)
-        |> Percussion.Pipeline.expand()
-        |> Percussion.Pipeline.fold(request)
-        |> Percussion.Request.map(fun)
+        (@pipe ++ unquote(decorators))
+        |> Pipeline.expand()
+        |> Pipeline.fold(request)
+        |> Request.map(fun)
       end
     end
   end
