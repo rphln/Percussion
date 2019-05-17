@@ -1,31 +1,23 @@
 defmodule Percussion.Decorators do
+  @moduledoc """
+  Built-in command decorators.
+  """
+
   alias Percussion.Request
-  alias Percussion.Utils
 
-  alias Nostrum.Api
-  alias Nostrum.Cache.GuildCache
-
-  def help(%Request{arguments: arguments} = request, help) do
+  @doc """
+  Adds `--help` as a possible argument to the command.
+  """
+  def help(%Request{arguments: arguments} = request, contents) do
     if "--help" in arguments do
-      Request.halt(request, help)
+      Request.halt(request, contents)
     else
       request
     end
   end
 
   @doc """
-  Replies the sender with the reason for halting the command pipeline.
-  """
-  def send_reply(%Request{message: message, assigns: assigns} = request, nil) do
-    if :response in assigns do
-      Api.create_message(message, assigns.response)
-    end
-
-    request
-  end
-
-  @doc """
-  Requires messages to be sent to a guild.
+  Requires the command to be called in only a guild, or only in DMs.
   """
   def in_guild?(%Request{message: message} = request, required) do
     cond do
@@ -41,7 +33,9 @@ defmodule Percussion.Decorators do
   end
 
   @doc """
-  Limits the command to the whitelisted guilds.
+  Prevents the command from being called in non-whitelisted guilds.
+
+  Note that it can still be used in DMs.
   """
   def whitelist_guilds(%Request{message: message} = request, whitelist) do
     cond do
@@ -67,42 +61,13 @@ defmodule Percussion.Decorators do
   end
 
   @doc """
-  Limits the command to users with specified permission.
+  Prevents the command from being called by non-whitelisted users.
   """
   def whitelist_users(%Request{message: message} = request, whitelist) do
     if message.author.id in whitelist do
       request
     else
       Request.halt(request, "Permission denied.")
-    end
-  end
-
-  @doc """
-  Convert role name matches in the arguments.
-  """
-  def parse_role_names(%Request{message: message, arguments: arguments} = request, _opts) do
-    keys = arguments |> Enum.map(&Utils.casefold/1)
-    roles = message.guild_id |> GuildCache.get!() |> Utils.guild_roles_by_name()
-
-    roles =
-      roles
-      |> Map.take(keys)
-      |> Map.values()
-
-    dirty = length(roles) < length(arguments)
-
-    Request.assign(request, roles: roles, dirty: dirty)
-  end
-
-  @doc """
-  Limits matched roles to the whitelist. Must be used in conjunction to
-  `parse_role_names/2`.
-  """
-  def whitelist_roles(%Request{assigns: assigns} = request, whitelist) do
-    if match = Enum.find(assigns.roles, &(&1.name not in whitelist)) do
-      Request.halt(request, "Error! Role `#{match.name}` is not whitelisted.")
-    else
-      request
     end
   end
 end
