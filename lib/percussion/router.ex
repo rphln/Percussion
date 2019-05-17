@@ -30,6 +30,7 @@ defmodule Percussion.Router do
 
   """
 
+  alias Percussion.Pipeline
   alias Percussion.Request
 
   @doc """
@@ -37,18 +38,13 @@ defmodule Percussion.Router do
   """
   @callback dispatch(request :: Request.t()) :: Request.t()
 
-  def __using__(_opts) do
+  defmacro __using__(_opts) do
     quote do
       @behaviour Percussion.Router
 
       import Percussion.Router
 
       require Percussion.Pipeline
-
-      alias Percussion.Pipeline
-      alias Percussion.Request
-
-      Module.register_attribute(__MODULE__, :pipe, accumulate: true)
     end
   end
 
@@ -134,7 +130,7 @@ defmodule Percussion.Router do
       def dispatch(%Request{invoked_with: unquote(match)} = request) do
         fun = &unquote(module).unquote(function)(&1)
 
-        (@pipe ++ unquote(decorators))
+        unquote(decorators)
         |> Pipeline.expand()
         |> Pipeline.fold(request)
         |> Request.map(fun)
