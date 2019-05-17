@@ -7,6 +7,8 @@ defmodule Percussion.MixProject do
       version: "0.1.0",
       elixir: "~> 1.8",
       start_permanent: Mix.env() == :prod,
+      source_url: "https://github.com/BlindJoker/Percussion",
+      homepage_url: "https://github.com/BlindJoker/Percussion",
       deps: deps()
     ]
   end
@@ -14,15 +16,18 @@ defmodule Percussion.MixProject do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      extra_applications: [:logger]
+      applications: [],
+      extra_applications: []
     ]
   end
 
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      # {:dep_from_hexpm, "~> 0.3.0"},
-      # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"}
+      {:nostrum, "~> 0.3"},
+
+      # Dev
+      {:ex_doc, "~> 0.20", only: :dev, runtime: false}
     ]
   end
 end
