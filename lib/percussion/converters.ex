@@ -1,4 +1,8 @@
 defmodule Percussion.Converters do
+  @moduledoc """
+  Utility functions for converting Discord mentions or strings into useful formats.
+  """
+
   @channel_regex ~r/<#([0-9]+)>$/i
   @role_mention_regex ~r/<@&([0-9]+)>$/i
   @user_mention_regex ~r/<@!?([0-9]+)>$/i

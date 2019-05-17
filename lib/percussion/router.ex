@@ -45,8 +45,8 @@ defmodule Percussion.Router do
 
       require Percussion.Pipeline
 
-      alias Percussion.Request
       alias Percussion.Pipeline
+      alias Percussion.Request
 
       Module.register_attribute(__MODULE__, :pipe, accumulate: true)
     end

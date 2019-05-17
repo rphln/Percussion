@@ -4,6 +4,7 @@ defmodule Percussion.Request do
   """
 
   alias Percussion.Request
+
   alias Nostrum.Struct.Message
 
   defstruct arguments: [],
