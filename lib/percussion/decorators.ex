@@ -1,5 +1,6 @@
 defmodule Percussion.Decorators do
   alias Percussion.Request
+  alias Percussion.Utils
 
   alias Nostrum.Api
   alias Nostrum.Cache.GuildCache
@@ -80,21 +81,17 @@ defmodule Percussion.Decorators do
   Convert role name matches in the arguments.
   """
   def parse_role_names(%Request{message: message, arguments: arguments} = request, _opts) do
-    guild = GuildCache.get!(message.guild_id)
-
-    roles =
-      guild.roles
-      |> Enum.map(fn {_id, role} -> {casefold(role.name), role} end)
-      |> Enum.into(%{})
-
-    keys = Enum.map(arguments, &casefold/1)
+    keys = arguments |> Enum.map(&Utils.casefold/1)
+    roles = message.guild_id |> GuildCache.get!() |> Utils.guild_roles_by_name()
 
     roles =
       roles
       |> Map.take(keys)
       |> Map.values()
 
-    Request.assign(request, roles: roles)
+    dirty = length(roles) < length(arguments)
+
+    Request.assign(request, roles: roles, dirty: dirty)
   end
 
   @doc """
@@ -107,9 +104,5 @@ defmodule Percussion.Decorators do
     else
       request
     end
-  end
-
-  defp casefold(string) when is_bitstring(string) do
-    string |> String.normalize(:nfd) |> String.downcase()
   end
 end
