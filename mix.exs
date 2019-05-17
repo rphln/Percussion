@@ -4,7 +4,7 @@ defmodule Percussion.MixProject do
   def project do
     [
       app: :percussion,
-      version: "0.1.0",
+      version: "0.1.1",
       elixir: "~> 1.8",
       start_permanent: Mix.env() == :prod,
       source_url: "https://github.com/BlindJoker/Percussion",
@@ -26,8 +26,9 @@ defmodule Percussion.MixProject do
     [
       {:nostrum, "~> 0.3"},
 
-      # Dev
-      {:ex_doc, "~> 0.20", only: :dev, runtime: false}
+      # Development dependencies.
+      {:ex_doc, "~> 0.20", only: :dev, runtime: false},
+      {:credo, "~> 1.0", only: [:dev, :test], runtime: false}
     ]
   end
 end
