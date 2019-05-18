@@ -3,17 +3,30 @@ defmodule Percussion.MixProject do
 
   def project do
     [
-      app: :percussion,
+      name: "Percussion",
+      description: "A command framework for Nostrum.",
       version: "0.1.1",
-      elixir: "~> 1.8",
-      start_permanent: Mix.env() == :prod,
+      app: :percussion,
       source_url: "https://github.com/BlindJoker/Percussion",
-      homepage_url: "https://github.com/BlindJoker/Percussion",
+      homepage_url: "https://blindjoker.github.io/Percussion/",
+      build_embedded: Mix.env() == :prod,
+      start_permanent: Mix.env() == :prod,
+      elixir: "~> 1.8",
       deps: deps()
     ]
   end
 
-  # Run "mix help compile.app" to learn about applications.
+  def package do
+    [
+      licenses: ["MIT"],
+      maintainers: ["Raphael Nepomuceno"],
+      links: %{
+        "GitHub" => "https://github.com/BlindJoker/Percussion/",
+        "Docs" => "https://blindjoker.github.io/Percussion/"
+      }
+    ]
+  end
+
   def application do
     [
       applications: [],
@@ -21,7 +34,6 @@ defmodule Percussion.MixProject do
     ]
   end
 
-  # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
       {:nostrum, "~> 0.3"},
