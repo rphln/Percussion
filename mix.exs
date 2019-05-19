@@ -39,8 +39,8 @@ defmodule Percussion.MixProject do
       {:nostrum, "~> 0.3"},
 
       # Development dependencies.
-      {:ex_doc, "~> 0.20", only: :dev, runtime: false},
-      {:credo, "~> 1.0", only: [:dev, :test], runtime: false}
+      {:credo, "~> 1.0", only: [:dev, :test], runtime: false},
+      {:ex_doc, "~> 0.20", only: :dev, runtime: false}
     ]
   end
 end
