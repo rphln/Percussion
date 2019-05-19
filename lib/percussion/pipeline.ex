@@ -24,7 +24,8 @@ defmodule Percussion.Pipeline do
         {:halt, response}
 
       _ ->
-        raise "Expected `#{inspect(fun)}` to return a `Percussion.Request`."
+        raise ArgumentError,
+          message: "Expected `#{inspect(fun)}` to return a `Percussion.Request`."
     end
   end
 
