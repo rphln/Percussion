@@ -24,8 +24,8 @@ defmodule Percussion.Converters do
       :error
 
   """
-  @spec user_mention_to_id(String.t()) :: Snowflake.t()
-  def user_mention_to_id(text) do
+  @spec user_mention_to_id(String.t()) :: {:ok, Snowflake.t()} | :error
+  def user_mention_to_id(text) when is_bitstring(text) do
     with [_text, match] <- Regex.run(@user_mention_regex, text) do
       Snowflake.cast(match)
     else
@@ -48,8 +48,8 @@ defmodule Percussion.Converters do
       :error
 
   """
-  @spec role_mention_to_id(String.t()) :: Snowflake.t()
-  def role_mention_to_id(text) do
+  @spec role_mention_to_id(String.t()) :: {:ok, Snowflake.t()} | :error
+  def role_mention_to_id(text) when is_bitstring(text) do
     with [_text, match] <- Regex.run(@role_mention_regex, text) do
       Snowflake.cast(match)
     else
@@ -72,8 +72,8 @@ defmodule Percussion.Converters do
       :error
 
   """
-  @spec channel_to_id(String.t()) :: Snowflake.t()
-  def channel_to_id(text) do
+  @spec channel_to_id(String.t()) :: {:ok, Snowflake.t()} | :error
+  def channel_to_id(text) when is_bitstring(text) do
     with [_text, match] <- Regex.run(@channel_regex, text) do
       Snowflake.cast(match)
     else
