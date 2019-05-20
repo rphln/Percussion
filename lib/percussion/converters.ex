@@ -10,7 +10,7 @@ defmodule Percussion.Converters do
   @user_mention_regex ~r/<@!?([0-9]+)>$/i
 
   @doc """
-  Converts a formatted Discord user mention to a standalone id.
+  Converts a formatted Discord user mention to a `t:Nostrum.Snowflake.t/0`.
 
   ## Examples
 
@@ -34,7 +34,7 @@ defmodule Percussion.Converters do
   end
 
   @doc """
-  Converts a formatted Discord role mention to a standalone id.
+  Converts a formatted Discord role mention to a `t:Nostrum.Snowflake.t/0`.
 
   ## Examples
 
@@ -58,7 +58,7 @@ defmodule Percussion.Converters do
   end
 
   @doc """
-  Converts a formatted Discord role mention to a standalone id.
+  Converts a formatted Discord channel mention to a `t:Nostrum.Snowflake.t/0`.
 
   ## Examples
 
