@@ -3,6 +3,8 @@ defmodule Percussion.Converters do
   Utility functions for converting Discord mentions or strings into useful formats.
   """
 
+  alias Nostrum.Snowflake
+
   @channel_regex ~r/<#([0-9]+)>$/i
   @role_mention_regex ~r/<@&([0-9]+)>$/i
   @user_mention_regex ~r/<@!?([0-9]+)>$/i
@@ -19,16 +21,15 @@ defmodule Percussion.Converters do
       {:ok, 123456789}
 
       iex> Percussion.Converters.user_mention_to_id("123456789")
-      {:error, "Not an user mention."}
+      :error
 
   """
+  @spec user_mention_to_id(String.t()) :: Snowflake.t()
   def user_mention_to_id(text) do
-    with [_text, match] <- Regex.run(@user_mention_regex, text),
-         {id, ""} <- Integer.parse(match) do
-      {:ok, id}
+    with [_text, match] <- Regex.run(@user_mention_regex, text) do
+      Snowflake.cast(match)
     else
-      _ ->
-        {:error, "Not an user mention."}
+      _ -> :error
     end
   end
 
@@ -41,19 +42,18 @@ defmodule Percussion.Converters do
       {:ok, 123456789}
 
       iex> Percussion.Converters.role_mention_to_id("<@123456789>")
-      {:error, "Not a role mention."}
+      :error
 
       iex> Percussion.Converters.role_mention_to_id("123456789")
-      {:error, "Not a role mention."}
+      :error
 
   """
+  @spec role_mention_to_id(String.t()) :: Snowflake.t()
   def role_mention_to_id(text) do
-    with [_text, match] <- Regex.run(@role_mention_regex, text),
-         {id, ""} <- Integer.parse(match) do
-      {:ok, id}
+    with [_text, match] <- Regex.run(@role_mention_regex, text) do
+      Snowflake.cast(match)
     else
-      _ ->
-        {:error, "Not a role mention."}
+      _ -> :error
     end
   end
 
@@ -66,19 +66,18 @@ defmodule Percussion.Converters do
       {:ok, 123456789}
 
       iex> Percussion.Converters.channel_to_id("<@123456789>")
-      {:error, "Not a channel."}
+      :error
 
       iex> Percussion.Converters.channel_to_id("123456789")
-      {:error, "Not a channel."}
+      :error
 
   """
+  @spec channel_to_id(String.t()) :: Snowflake.t()
   def channel_to_id(text) do
-    with [_text, match] <- Regex.run(@channel_regex, text),
-         {id, ""} <- Integer.parse(match) do
-      {:ok, id}
+    with [_text, match] <- Regex.run(@channel_regex, text) do
+      Snowflake.cast(match)
     else
-      _ ->
-        {:error, "Not a channel."}
+      _ -> :error
     end
   end
 end
