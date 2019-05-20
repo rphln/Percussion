@@ -8,7 +8,7 @@ The documentation can be found at https://blindjoker.github.io/Percussion. If yo
 
 ## Installation
 
-At this moment, `Percussion` is not fully fit for public use, and as such is not available in Hex. If you're feeling adventurous and want to try it, simply add it as a GitHub dependency.
+At this moment, `Percussion` is highly volatile; if you're feeling adventurous and want to try it, simply add it as a GitHub dependency.
 
 ```elixir
 def deps do
@@ -20,8 +20,8 @@ end
 
 ## Acknowledgements
 
-Percussion borrows some of its code, either verbatim or as inspiration, from the [`nosedrum`](https://github.com/jchristgit/nosedrum) library, which is licensed under the ISC license. See their repository for more information.
+`Percussion` borrows some of its code, either verbatim or as inspiration, from the [`nosedrum`](https://github.com/jchristgit/nosedrum) library, which is licensed under the ISC license. See their repository for more information.
 
 ## License
 
-This project is licensed under the [MIT](https://github.com/BlindJoker/Percussion/blob/master/LICENSE) license.
+This project is licensed under the [MIT](https://opensource.org/licenses/MIT) license.

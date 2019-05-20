@@ -11,6 +11,7 @@ defmodule Percussion.Pipeline do
   This function returns when an element of `pipeline` is exhausted, or if any of its
   elements halts the request.
   """
+  @spec fold([(Request.t() -> Request.t())], Request.t()) :: Request.t()
   def fold(pipeline, request) do
     Enum.reduce_while(pipeline, request, &apply_pipe/2)
   end

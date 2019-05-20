@@ -3,16 +3,18 @@ defmodule Percussion.MixProject do
 
   def project do
     [
-      name: "Percussion",
       description: "A command framework for Nostrum.",
-      version: "0.1.1",
+      version: "0.2.0",
       app: :percussion,
-      source_url: "https://github.com/BlindJoker/Percussion",
-      homepage_url: "https://blindjoker.github.io/Percussion/",
       build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,
       elixir: "~> 1.8",
-      deps: deps()
+      deps: deps(),
+
+      # Docs
+      name: "Percussion",
+      source_url: "https://github.com/BlindJoker/Percussion",
+      homepage_url: "https://blindjoker.github.io/Percussion/"
     ]
   end
 
