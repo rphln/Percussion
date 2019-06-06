@@ -129,10 +129,10 @@ defmodule Percussion.Router do
 
       def dispatch(%Request{invoked_with: unquote(match)} = request) do
         fun = &unquote(module).unquote(function)(&1)
+        pipeline = Pipeline.expand(unquote(decorators))
 
-        unquote(decorators)
-        |> Pipeline.expand()
-        |> Pipeline.fold(request)
+        request
+        |> Request.pipe(pipeline)
         |> Request.map(fun)
       end
     end
