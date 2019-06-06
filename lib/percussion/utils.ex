@@ -1,9 +1,10 @@
 defmodule Percussion.Utils do
   @moduledoc """
   Helpers which aren't particularly critical to the library and don't warrant their own
-  modules.
+  modules, or are Nostrum-specific.
   """
 
+  alias Nostrum.Api
   alias Nostrum.Struct.Message
   alias Percussion.Request
 
@@ -39,5 +40,25 @@ defmodule Percussion.Utils do
     with [command | arguments] <- split(contents) do
       %Request{arguments: arguments, invoked_with: command, message: message}
     end
+  end
+
+  @doc """
+  Sends the response from `t:Percussion.Request.t/0` to its channel.
+
+  Nostrum-only.
+  """
+  @spec create_message(Request.t()) :: Request.t()
+  def create_message(%Request{} = request) do
+    Request.send_response(request, &do_create_message/1)
+  end
+
+  ## Helpers.
+
+  defp do_create_message(request) do
+    unless is_nil(request.response) do
+      Api.create_message(request.message, request.response)
+    end
+
+    request
   end
 end
