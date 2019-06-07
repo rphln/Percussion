@@ -23,6 +23,10 @@ defmodule Percussion.DecoratorsTest do
         invoked_with: "",
         message: %Message{guild_id: guilds.foo}
       },
+      to_bar: %Request{
+        invoked_with: "",
+        message: %Message{guild_id: guilds.bar}
+      },
       to_nil: %Request{
         invoked_with: "",
         message: %Message{guild_id: nil}
@@ -46,42 +50,56 @@ defmodule Percussion.DecoratorsTest do
 
   describe "in_guild?/2" do
     test "halts if message was sent in a guild", %{requests: requests} do
-      assert %{halt: false} = Subject.in_guild?(requests.to_nil, false)
-      assert %{halt: true} = Subject.in_guild?(requests.to_foo, false)
+      predicate = Subject.in_guild?(false)
+
+      assert %{halt: false} = predicate.(requests.to_nil)
+      assert %{halt: true} = predicate.(requests.to_foo)
     end
 
     test "halts if message was not sent in a guild", %{requests: requests} do
-      assert %{halt: true} = Subject.in_guild?(requests.to_nil, true)
-      assert %{halt: false} = Subject.in_guild?(requests.to_foo, true)
+      predicate = Subject.in_guild?(true)
+
+      assert %{halt: true} = predicate.(requests.to_nil)
+      assert %{halt: false} = predicate.(requests.to_foo)
     end
   end
 
   describe "whitelist_guilds/2" do
     test "filters correctly", %{requests: requests, guilds: guilds} do
-      assert %{halt: true} = Subject.whitelist_guilds(requests.to_foo, [guilds.bar])
-      assert %{halt: false} = Subject.whitelist_guilds(requests.to_foo, [guilds.foo])
+      predicate = Subject.whitelist_guilds([guilds.bar])
+
+      assert %{halt: true} = predicate.(requests.to_foo)
+      assert %{halt: false} = predicate.(requests.to_bar)
     end
 
     test "allows DMs", %{requests: requests, guilds: guilds} do
-      assert %{halt: false} = Subject.whitelist_guilds(requests.to_nil, [guilds.bar])
+      predicate = Subject.whitelist_guilds([guilds.bar])
+
+      assert %{halt: false} = predicate.(requests.to_nil)
     end
   end
 
   describe "in_whitelisted_guild?/2" do
     test "filters correctly", %{requests: requests, guilds: guilds} do
-      assert %{halt: true} = Subject.in_whitelisted_guild?(requests.to_foo, [guilds.bar])
-      assert %{halt: false} = Subject.in_whitelisted_guild?(requests.to_foo, [guilds.foo])
+      predicate = Subject.in_whitelisted_guild?([guilds.bar])
+
+      assert %{halt: true} = predicate.(requests.to_foo)
+      assert %{halt: false} = predicate.(requests.to_bar)
     end
 
     test "disallows DMs", %{requests: requests, guilds: guilds} do
-      assert %{halt: true} = Subject.in_whitelisted_guild?(requests.to_nil, [guilds.foo])
+      predicate = Subject.in_whitelisted_guild?([guilds.bar])
+
+      assert %{halt: true} = predicate.(requests.to_nil)
     end
   end
 
   describe "whitelist_users/2" do
     test "filters correctly", %{requests: requests, authors: authors} do
-      assert %{halt: false} = Subject.whitelist_users(requests.from_alice, [authors.alice])
-      assert %{halt: true} = Subject.whitelist_users(requests.from_bob, [authors.alice])
+      predicate = Subject.whitelist_users([authors.alice])
+
+      assert %{halt: false} = predicate.(requests.from_alice)
+      assert %{halt: true} = predicate.(requests.from_bob)
     end
   end
 
@@ -89,11 +107,11 @@ defmodule Percussion.DecoratorsTest do
     @message "Hello world!"
 
     test "matches correctly", %{requests: requests} do
-      assert %{halt: true, response: @message} = Subject.help(requests.help, @message)
+      assert %{halt: true, response: @message} = Subject.help(@message).(requests.help)
     end
 
     test "ignores correctly", %{requests: requests} do
-      assert requests.from_alice == Subject.help(requests.from_alice, @message)
+      assert requests.from_alice == Subject.help(@message).(requests.from_alice)
     end
   end
 end
