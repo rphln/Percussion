@@ -8,6 +8,8 @@ defmodule Percussion.MixProject do
       app: :percussion,
       build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,
+
+      # Deps
       elixir: "~> 1.8",
       deps: deps(),
 
@@ -29,19 +31,12 @@ defmodule Percussion.MixProject do
     ]
   end
 
-  def application do
-    [
-      applications: [],
-      extra_applications: []
-    ]
-  end
-
   defp deps do
     [
-      {:nostrum, "~> 0.3"},
+      {:nostrum, "~> 0.3", runtime: false},
 
       # Development dependencies.
-      {:credo, "~> 1.0", only: [:dev, :test], runtime: false},
+      {:credo, "~> 1.0", only: :dev, runtime: false},
       {:ex_doc, "~> 0.20", only: :dev, runtime: false}
     ]
   end
