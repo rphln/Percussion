@@ -1,139 +1,108 @@
 defmodule Percussion.Router do
   @moduledoc """
-  Macro helpers to define command routes and pipelines.
-
-  Decorator functions must accept an request and an option argument, and return the
-  transformed request. If the `halt` attribute is set on the request, the pipeline
-  will stop prematurely.
-
-  ## Examples
-
-      def ignore(%Request{} = request, _opt) do
-        Request.halt(request, "Not implemented!")
-      end
-
-      def whitelist_guilds(%Request{message: message} = request, whitelist) do
-        if message.guild_id in whitelist do
-          request
-        else
-          Request.halt(request, "This command can't be used in this server.")
-        end
-      end
-
-      def help(%Request{arguments: arguments} = request, help) do
-        if "--help" in arguments do
-          Request.halt(request, help)
-        else
-          request
-        end
-      end
-
+  Command routing specification.
   """
 
-  alias Percussion.Pipeline
+  alias Percussion.Command
+  alias Percussion.Dispatcher
   alias Percussion.Request
+  alias Percussion.Router
+
+  @typedoc "Alias map."
+  @type aliases :: %{String.t() => String.t()}
+
+  @typedoc "Transformations to apply before dispatching."
+  @type pipeline :: [Request.transform()]
+
+  @typedoc "Route specification."
+  @type route :: Router.t() | Command.t()
+
+  @typedoc "Route map."
+  @type routes :: %{String.t() => route}
+
+  @type t :: %Router{
+          aliases: aliases,
+          pipeline: pipeline,
+          routes: routes
+        }
+
+  defstruct aliases: %{},
+            pipeline: [],
+            routes: %{}
 
   @doc """
-  Executes the pipeline for the given `t:Percussion.Request.t/0`.
+  Returns the router specification for the given `entries`.
   """
-  @callback dispatch(request :: Request.t()) :: Request.t()
+  @spec compile([route], Keyword.t()) :: t
+  def compile(entries, opts \\ []) do
+    pipeline = opts[:pipe] || []
 
-  defmacro __using__(_opts) do
-    quote do
-      @behaviour Percussion.Router
+    %Router{
+      aliases: aliases_for(entries),
+      pipeline: pipeline,
+      routes: routes_for(entries)
+    }
+  end
 
-      import Percussion.Router
+  @doc """
+  Returns the alias map for the given `routes`.
+  """
+  @spec aliases_for([route]) :: aliases
+  def aliases_for(entries) do
+    Enum.reduce(entries, %{}, fn route, map ->
+      # This uses the first alias of `route` as a way to generate an unique name for
+      # the route, in order to be consistent with `routes_for/1`.
+      aliases = [name | _rest] = Dispatcher.aliases(route)
 
-      require Percussion.Pipeline
+      for key <- aliases, into: map do
+        {key, name}
+      end
+    end)
+  end
+
+  @doc """
+  Returns the routing map for the given `entries`.
+  """
+  @spec routes_for([route]) :: routes
+  def routes_for(entries) do
+    for route <- entries, into: %{} do
+      # Consistently generates a route name; see `aliases_for/1`.
+      [name | _rest] = Dispatcher.aliases(route)
+      {name, route}
     end
   end
 
-  @module quote(do: __MODULE__)
-
   @doc """
-  Defines a command dispatcher that matches on `name`.
-
-  ## Examples
-
-      command "hello"
-
-      # Pipes through `help` and `whitelist_guilds`.
-      command "foo",
-        help: @help,
-        whitelist_guilds: [123_456_789, 987_654_321]
-
-      # Passing decorators like so is also possible; in this case, their second
-      # argument is nil.
-      command "baz", [:ignore]
-
-      def hello(%Request{} = request) do
-        Request.reply(request, "Hello world!")
-      end
-
-      def foo(%Request{} = request) do
-        Request.reply(request, "bar")
-      end
-
+  Performs a lookup by `name` on `router`.
   """
-  defmacro command(name, decorators \\ []) when is_list(decorators) do
-    quote_dispatch(name, @module, String.to_atom(name), decorators)
+  @spec resolve(t, String.t()) :: {:ok, route} | :error
+  def resolve(router, name) do
+    # This is on purpose, so non-existing command requests are mapped to `nil`, which
+    # then could be handled by a "match-all" command that has `nil` as an alias.
+    key = Map.get(router.aliases, name)
+    Map.fetch(router.routes, key)
   end
 
-  @doc """
-  Defines a command dispatcher that matches on `name` and invokes `target`.
+  defimpl Dispatcher do
+    def aliases(router) do
+      Map.keys(router.aliases)
+    end
 
-  See `Percussion.Router.command/2`.
-
-  ## Examples
-
-      match "hello", :world
-
-      # Adding a wildcard command, even if empty, is a good idea to prevent match
-      # errors.
-      match _any, :wildcard
-
-      def world(%Request{} = request) do
-        Request.reply(request, "Hello world!")
+    def describe(router, name) do
+      with {:ok, route} <- Router.resolve(router, name),
+           {:ok, text} <- Dispatcher.describe(route, name) do
+        {:ok, text}
       end
+    end
 
-      def wildcard(%Request{} = request) do
-        Request.reply(request, "Error! Command not found.")
-      end
+    def execute(router, request) do
+      # Executing the pipeline beforehand ensures any possible command name change in
+      # the router pipeline works as expected.
+      request = Request.pipe(request, router.pipeline)
 
-  """
-  defmacro match(name, target, decorators \\ []) do
-    quote_dispatch(name, @module, target, decorators)
-  end
-
-  @doc """
-  Redirects a request another router.
-
-  ## Examples
-
-      redirect "foo", FooHandler
-
-      # Pipes through `whitelist_guilds/2` before redirecting.
-      redirect "bar", FooHandler, whitelist_guilds: [123_456_789, 987_654_321]
-
-      # Wildcard redirections are also possible.
-      redirect _any, FooHandler
-
-  """
-  defmacro redirect(match, module, decorators \\ []) do
-    quote_dispatch(match, module, :dispatch, decorators)
-  end
-
-  defp quote_dispatch(match, module, function, decorators) do
-    quote do
-      @impl true
-
-      def dispatch(%Request{invoked_with: unquote(match)} = request) do
-        fun = &unquote(module).unquote(function)(&1)
-        pipeline = Pipeline.expand(unquote(decorators))
-
-        request
-        |> Request.pipe(pipeline)
-        |> Request.map(fun)
+      with {:ok, route} <- Router.resolve(router, request.invoked_with),
+           {:ok, response} <- Dispatcher.execute(route, request) do
+        {:ok, response}
       end
     end
   end
