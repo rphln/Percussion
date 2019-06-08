@@ -2,13 +2,27 @@
 
 [![Build Status](https://travis-ci.org/BlindJoker/Percussion.svg?branch=master)](https://travis-ci.org/BlindJoker/Percussion)
 
-`Percussion` is a command framework for use with the [`Nostrum`](https://github.com/Kraigie/nostrum) library. Its syntax is loosely inspired by Plug, and it aims to provide a somewhat clean interface without relying too much on macro magic.
+Percussion is a command framework for [Nostrum](https://github.com/Kraigie/nostrum). It is based on the concept of transformation pipelines for command requests, being loosely inspired by Plug.
 
-The documentation can be found at https://blindjoker.github.io/Percussion. If you're looking for examples, [`Katsuragi`](https://github.com/BlindJoker/Katsuragi) is the main target of this library at the moment.
+The documentation can be found [here](https://blindjoker.github.io/Percussion). If you're looking for examples, see [Katsuragi](https://github.com/BlindJoker/Katsuragi).
+
+## About the pipeline.
+
+Chaining functions is the main way dealing with command requests (i.e., calls) in Percussion.
+
+The pipeline is composed of a list of steps that are called in order, which are simply request to request functions:
+
+```elixir
+def ping(request) do
+  reply(request, "Pong!")
+end
+```
+
+Additionally, steps have the ability to stop the whole pipeline prematurely by calling `Percussion.Request.halt/1` on the request; this may be used, for example, to handle errors that occur in the middle of the pipeline process.
 
 ## Installation
 
-At this moment, `Percussion` is highly volatile; if you're feeling adventurous and want to try it, simply add it as a GitHub dependency.
+At this moment, Percussion is highly volatile; if you're feeling adventurous and want to try it, simply add it as a GitHub dependency.
 
 ```elixir
 def deps do
@@ -20,7 +34,7 @@ end
 
 ## Acknowledgements
 
-`Percussion` borrows some of its code, either verbatim or as inspiration, from the [`nosedrum`](https://github.com/jchristgit/nosedrum) library, which is licensed under the ISC license. See their repository for more information.
+Percussion borrows some of its code, either verbatim or as inspiration, from the [nosedrum](https://github.com/jchristgit/nosedrum) library, which is licensed under the ISC license. See their repository for more information.
 
 ## License
 

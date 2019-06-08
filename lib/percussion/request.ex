@@ -1,14 +1,6 @@
 defmodule Percussion.Request do
   @moduledoc """
   A bot command request.
-
-  ## About transformations.
-
-  Transformation functions (see `t:Percussion.Request.transform/0`) is a core concept of the
-  request system.
-
-  If the `halt` attribute is set on the request, the transformation pipeline will stop
-  prematurely.
   """
 
   alias __MODULE__
@@ -16,11 +8,11 @@ defmodule Percussion.Request do
   @typedoc "The list of arguments that were passed into the command."
   @type arguments :: [String.t()]
 
-  @typedoc "Additional shared data between transformations."
+  @typedoc "Additional data shared between steps."
   @type assigns :: %{atom => any}
 
   @typedoc "Callbacks to be called right before the response is sent."
-  @type before_send :: [transform]
+  @type before_send :: [step]
 
   @typedoc "Whether to stop propagating this request."
   @type halt :: boolean
@@ -28,14 +20,14 @@ defmodule Percussion.Request do
   @typedoc "The command name that triggered this request."
   @type invoked_with :: String.t()
 
-  @typedoc "A request transformation function."
-  @type transform :: (t -> t)
-
   @typedoc "The message which triggered this request."
   @type message :: Nostrum.Struct.Message.t()
 
   @typedoc "The response to send to the user."
   @type response :: String.t() | nil
+
+  @typedoc "A single step in the pipeline."
+  @type step :: (t -> t)
 
   @type t :: %Request{
           arguments: arguments,
@@ -88,7 +80,7 @@ defmodule Percussion.Request do
   Maps `request` by applying a function if it's not halted, otherwise leave it
   untouched.
   """
-  @spec map(t, transform) :: t
+  @spec map(t, step) :: t
   def map(request, fun)
 
   def map(%Request{halt: false} = request, fun), do: fun.(request)
@@ -101,9 +93,9 @@ defmodule Percussion.Request do
   See `map/2`. This function terminates when `pipeline` is exhausted, or if any of its
   elements halts the request.
   """
-  @spec pipe(t, [transform]) :: t
+  @spec pipe(t, [step]) :: t
   def pipe(request, pipeline) do
-    Enum.reduce_while(pipeline, request, &apply_pipe/2)
+    Enum.reduce_while(pipeline, request, &apply_step/2)
   end
 
   @doc """
@@ -112,7 +104,7 @@ defmodule Percussion.Request do
   Callbacks are invoked regardless of the request being halted, and are executed in
   first-in, last-out order.
   """
-  @spec register_before_send(t, transform) :: t
+  @spec register_before_send(t, step) :: t
   def register_before_send(%Request{before_send: before_send} = request, callback) do
     %Request{request | before_send: [callback | before_send]}
   end
@@ -128,14 +120,14 @@ defmodule Percussion.Request do
   @doc """
   Sends a response to the client using `callback`.
   """
-  @spec send_response(t, transform) :: t
+  @spec send_response(t, step) :: t
   def send_response(%Request{} = request, callback) do
     request |> before_send() |> callback.()
   end
 
   ## Helpers.
 
-  defp apply_pipe(fun, request) do
+  defp apply_step(fun, request) do
     case response = Request.map(request, fun) do
       %Request{halt: false} ->
         {:cont, response}

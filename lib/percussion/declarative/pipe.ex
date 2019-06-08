@@ -1,37 +1,35 @@
 defmodule Percussion.Declarative.Pipe do
   @moduledoc """
-  Pipes a request through a transformation pipeline.
-
-  See `t:Request.transform/0`.
+  Sends the request through a pipeline before dispatching.
   """
 
   alias Percussion.Declarative.Dispatcher
   alias Percussion.Declarative.Pipe
   alias Percussion.Request
 
-  @typedoc "Child dispatcher."
+  @typedoc "Target dispatcher."
   @type child :: Dispatcher.t()
 
-  @typedoc "Transformations to apply before dispatching."
-  @type pipes :: [Request.transform()]
+  @typedoc "Actions to execute on the request."
+  @type pipeline :: [Request.step()]
 
   @type t :: %Pipe{
           child: child,
-          pipes: pipes
+          pipeline: pipeline
         }
 
-  @enforce_keys [:child, :pipes]
+  @enforce_keys [:child, :pipeline]
 
-  defstruct [:child, :pipes]
+  defstruct [:child, :pipeline]
 
   @doc """
   Builds a new pipeline dispatcher.
   """
-  @spec new(child, pipes) :: t
-  def new(child, pipes) do
+  @spec new(child, pipeline) :: t
+  def new(child, pipeline) do
     %Pipe{
       child: child,
-      pipes: pipes
+      pipeline: pipeline
     }
   end
 
@@ -45,7 +43,7 @@ defmodule Percussion.Declarative.Pipe do
     end
 
     def execute(pipe, request) do
-      response = Request.pipe(request, pipe.pipes)
+      response = Request.pipe(request, pipe.pipeline)
       Dispatcher.execute(pipe.child, response)
     end
   end

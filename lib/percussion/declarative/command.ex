@@ -7,14 +7,14 @@ defmodule Percussion.Declarative.Command do
   alias Percussion.Declarative.Dispatcher
   alias Percussion.Request
 
-  @typedoc "List of names that this dispatcher will match on."
+  @typedoc "Names that this command will match on."
   @type aliases :: [String.t()]
-
-  @typedoc "Function which will be called by this command."
-  @type dispatch :: Request.transform()
 
   @typedoc "Description for this command."
   @type description :: String.t()
+
+  @typedoc "Function which will be called by this command."
+  @type dispatch :: Request.step()
 
   @type t :: %Command{
           aliases: aliases,

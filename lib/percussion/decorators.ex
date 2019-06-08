@@ -9,7 +9,7 @@ defmodule Percussion.Decorators do
   @doc """
   Adds `--help` as a possible argument to the command.
   """
-  @spec help(String.t()) :: Request.transform()
+  @spec help(String.t()) :: Request.step()
   def help(contents) do
     fn %Request{arguments: arguments} = request ->
       if "--help" in arguments do
@@ -23,7 +23,7 @@ defmodule Percussion.Decorators do
   @doc """
   Requires the command to be called in only a guild, or only in DMs.
   """
-  @spec in_guild?(boolean) :: Request.transform()
+  @spec in_guild?(boolean) :: Request.step()
   def in_guild?(required) do
     fn %Request{message: message} = request ->
       cond do
@@ -44,7 +44,7 @@ defmodule Percussion.Decorators do
 
   Note that it can still be used in DMs.
   """
-  @spec whitelist_guilds([Snowflake.t()]) :: Request.transform()
+  @spec whitelist_guilds([Snowflake.t()]) :: Request.step()
   def whitelist_guilds(whitelist) do
     fn %Request{message: message} = request ->
       cond do
@@ -63,7 +63,7 @@ defmodule Percussion.Decorators do
   @doc """
   Combines `in_guild?/2` and `whitelist_guilds/2`.
   """
-  @spec in_whitelisted_guild?([Snowflake.t()]) :: Request.transform()
+  @spec in_whitelisted_guild?([Snowflake.t()]) :: Request.step()
   def in_whitelisted_guild?(whitelist) do
     guild = in_guild?(true)
     whitelist = whitelist_guilds(whitelist)
@@ -78,7 +78,7 @@ defmodule Percussion.Decorators do
   @doc """
   Prevents the command from being called by non-whitelisted users.
   """
-  @spec whitelist_users([Snowflake.t()]) :: Request.transform()
+  @spec whitelist_users([Snowflake.t()]) :: Request.step()
   def whitelist_users(whitelist) do
     fn %Request{message: message} = request ->
       if message.author.id in whitelist do
