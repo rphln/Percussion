@@ -4,7 +4,7 @@ defmodule Percussion.MixProject do
   def project do
     [
       description: "A command framework for Nostrum.",
-      version: "0.2.0",
+      version: "0.3.0",
       app: :percussion,
       build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,
