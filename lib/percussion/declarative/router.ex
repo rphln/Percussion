@@ -21,7 +21,6 @@ defmodule Percussion.Declarative.Router do
         }
 
   defstruct aliases: %{},
-            pipeline: [],
             routes: %{}
 
   @doc """
