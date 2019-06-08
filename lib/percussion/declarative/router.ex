@@ -1,28 +1,22 @@
-defmodule Percussion.Router do
+defmodule Percussion.Declarative.Router do
   @moduledoc """
   Command routing specification.
   """
 
-  alias Percussion.Command
-  alias Percussion.Dispatcher
-  alias Percussion.Request
-  alias Percussion.Router
+  alias Percussion.Declarative.Dispatcher
+  alias Percussion.Declarative.Router
 
   @typedoc "Alias map."
   @type aliases :: %{String.t() => String.t()}
 
-  @typedoc "Transformations to apply before dispatching."
-  @type pipeline :: [Request.transform()]
-
   @typedoc "Route specification."
-  @type route :: Router.t() | Command.t()
+  @type route :: Dispatcher.t()
 
   @typedoc "Route map."
   @type routes :: %{String.t() => route}
 
   @type t :: %Router{
           aliases: aliases,
-          pipeline: pipeline,
           routes: routes
         }
 
@@ -33,13 +27,10 @@ defmodule Percussion.Router do
   @doc """
   Returns the router specification for the given `entries`.
   """
-  @spec compile([route], Keyword.t()) :: t
-  def compile(entries, opts \\ []) do
-    pipeline = opts[:pipe] || []
-
+  @spec new([route]) :: t
+  def new(entries) do
     %Router{
       aliases: aliases_for(entries),
-      pipeline: pipeline,
       routes: routes_for(entries)
     }
   end
@@ -89,20 +80,14 @@ defmodule Percussion.Router do
     end
 
     def describe(router, name) do
-      with {:ok, route} <- Router.resolve(router, name),
-           {:ok, text} <- Dispatcher.describe(route, name) do
-        {:ok, text}
+      with {:ok, route} <- Router.resolve(router, name) do
+        Dispatcher.describe(route, name)
       end
     end
 
     def execute(router, request) do
-      # Executing the pipeline beforehand ensures any possible command name change in
-      # the router pipeline works as expected.
-      request = Request.pipe(request, router.pipeline)
-
-      with {:ok, route} <- Router.resolve(router, request.invoked_with),
-           {:ok, response} <- Dispatcher.execute(route, request) do
-        {:ok, response}
+      with {:ok, route} <- Router.resolve(router, request.invoked_with) do
+        Dispatcher.execute(route, request)
       end
     end
   end

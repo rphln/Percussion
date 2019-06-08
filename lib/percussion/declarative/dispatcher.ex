@@ -1,4 +1,4 @@
-defprotocol Percussion.Dispatcher do
+defprotocol Percussion.Declarative.Dispatcher do
   @moduledoc """
   Dispatcher protocol used by `Percussion.Router`.
 
@@ -24,8 +24,4 @@ defprotocol Percussion.Dispatcher do
   """
   @spec execute(term, Request.t()) :: {:ok, Request.t()} | :error
   def execute(entry, request)
-
-  defdelegate command(name, dispatch, opts \\ []), to: Percussion.Command, as: :spec
-
-  defdelegate router(entries, opts \\ []), to: Percussion.Router, as: :compile
 end

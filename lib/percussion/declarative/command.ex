@@ -1,10 +1,10 @@
-defmodule Percussion.Command do
+defmodule Percussion.Declarative.Command do
   @moduledoc """
   A command specification.
   """
 
-  alias Percussion.Command
-  alias Percussion.Dispatcher
+  alias Percussion.Declarative.Command
+  alias Percussion.Declarative.Dispatcher
   alias Percussion.Request
 
   @typedoc "List of names that this dispatcher will match on."
@@ -16,36 +16,29 @@ defmodule Percussion.Command do
   @typedoc "Description for this command."
   @type description :: String.t()
 
-  @typedoc "Transformations to apply before executing."
-  @type pipeline :: [Request.transform()]
-
   @type t :: %Command{
           aliases: aliases,
           description: description,
-          dispatch: dispatch,
-          pipeline: pipeline
+          dispatch: dispatch
         }
 
   @enforce_keys [:aliases, :dispatch]
 
   defstruct aliases: [],
             dispatch: nil,
-            description: nil,
-            pipeline: []
+            description: nil
 
   @doc """
   Returns the specification for the given command.
   """
-  @spec spec(String.t(), dispatch, Keyword.t()) :: t
-  def spec(name, dispatch, opts \\ []) do
+  @spec new(String.t(), dispatch, Keyword.t()) :: t
+  def new(name, dispatch, opts \\ []) do
     aliases = opts[:aliases] || []
-    pipeline = opts[:pipe] || []
 
     %Command{
       aliases: [name | aliases],
       dispatch: dispatch,
-      description: opts[:description],
-      pipeline: pipeline
+      description: opts[:description]
     }
   end
 
@@ -55,12 +48,7 @@ defmodule Percussion.Command do
     end
 
     def execute(command, request) do
-      response =
-        request
-        |> Request.pipe(command.pipeline)
-        |> Request.map(command.dispatch)
-
-      {:ok, response}
+      {:ok, Request.map(request, command.dispatch)}
     end
 
     def describe(command, _name) do

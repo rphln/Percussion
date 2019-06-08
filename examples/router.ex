@@ -1,6 +1,6 @@
 defmodule Examples.Router do
+  import Percussion.Declarative
   import Percussion.Decorators
-  import Percussion.Dispatcher, only: [command: 2, command: 3, router: 1]
   import Percussion.Request
 
   defmodule GuildCog do
@@ -67,7 +67,8 @@ defmodule Examples.Router do
   end
 
   def ping do
-    command("ping", &ping/1, pipe: [help("ping - send ICMP ECHO_REQUEST to network hosts")])
+    command("ping", &ping/1)
+    |> plug([help("ping - send ICMP ECHO_REQUEST to network hosts")])
   end
 
   defp ping(request) do
