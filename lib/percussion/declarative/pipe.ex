@@ -33,6 +33,16 @@ defmodule Percussion.Declarative.Pipe do
     }
   end
 
+  @doc """
+  Adds `step` into the pipeline.
+
+  Note that, when added this way, `step` is called first.
+  """
+  @spec put(t, Request.step()) :: t
+  def put(pipe, step) do
+    update_in(pipe.pipeline, &[step | &1])
+  end
+
   defimpl Dispatcher do
     def aliases(pipe) do
       Dispatcher.aliases(pipe.child)

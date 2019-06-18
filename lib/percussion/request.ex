@@ -3,7 +3,7 @@ defmodule Percussion.Request do
   A bot command request.
   """
 
-  alias __MODULE__
+  alias Percussion.Request
 
   @typedoc "The list of arguments that were passed into the command."
   @type arguments :: [String.t()]
@@ -53,15 +53,15 @@ defmodule Percussion.Request do
   Assigns multiple values to the request.
   """
   @spec assign(t, Keyword.t()) :: t
-  def assign(%Request{assigns: assigns} = request, keyword) when is_list(keyword) do
-    %Request{request | assigns: Enum.into(keyword, assigns)}
+  def assign(request, assigns) do
+    update_in(request.assigns, &Enum.into(assigns, &1))
   end
 
   @doc """
   Halts the pipeline, preventing downstream pipes from being executed.
   """
   @spec halt(t) :: t
-  def halt(%Request{} = request) do
+  def halt(request) do
     %Request{request | halt: true}
   end
 
@@ -72,7 +72,7 @@ defmodule Percussion.Request do
   Equivalent to calling `halt/1` and `reply/2`.
   """
   @spec halt(t, String.t()) :: t
-  def halt(%Request{} = request, response) do
+  def halt(request, response) do
     request |> reply(response) |> halt()
   end
 
@@ -83,9 +83,9 @@ defmodule Percussion.Request do
   @spec map(t, step) :: t
   def map(request, fun)
 
-  def map(%Request{halt: false} = request, fun), do: fun.(request)
+  def map(%{halt: false} = request, fun), do: fun.(request)
 
-  def map(%Request{halt: true} = request, _fun), do: request
+  def map(%{halt: true} = request, _fun), do: request
 
   @doc """
   Maps `request` with each element in `pipeline` in order.
@@ -105,15 +105,15 @@ defmodule Percussion.Request do
   first-in, last-out order.
   """
   @spec register_before_send(t, step) :: t
-  def register_before_send(%Request{before_send: before_send} = request, callback) do
-    %Request{request | before_send: [callback | before_send]}
+  def register_before_send(request, callback) do
+    update_in(request.before_send, &[callback | &1])
   end
 
   @doc """
   Sets the response for the request.
   """
   @spec reply(t, String.t()) :: t
-  def reply(%Request{} = request, response) do
+  def reply(request, response) do
     %Request{request | response: response}
   end
 
@@ -121,7 +121,7 @@ defmodule Percussion.Request do
   Sends a response to the client using `callback`.
   """
   @spec send_response(t, step) :: t
-  def send_response(%Request{} = request, callback) do
+  def send_response(request, callback) do
     request |> before_send() |> callback.()
   end
 

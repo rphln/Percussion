@@ -6,13 +6,13 @@ defmodule Percussion.Declarative.Router do
   alias Percussion.Declarative.Dispatcher
   alias Percussion.Declarative.Router
 
-  @typedoc "Alias map."
+  @typedoc "Name resolution table."
   @type aliases :: %{String.t() => String.t()}
 
   @typedoc "Route specification."
   @type route :: Dispatcher.t()
 
-  @typedoc "Route map."
+  @typedoc "Routing table."
   @type routes :: %{String.t() => route}
 
   @type t :: %Router{
@@ -28,38 +28,42 @@ defmodule Percussion.Declarative.Router do
   """
   @spec new([route]) :: t
   def new(entries) do
-    %Router{
-      aliases: aliases_for(entries),
-      routes: routes_for(entries)
-    }
+    Enum.reduce(entries, %Router{}, &put(&2, &1))
   end
 
   @doc """
-  Returns the alias map for the given `routes`.
+  Inserts `entry` into the router table.
   """
-  @spec aliases_for([route]) :: aliases
-  def aliases_for(entries) do
-    Enum.reduce(entries, %{}, fn route, map ->
-      # This uses the first alias of `route` as a way to generate an unique name for
-      # the route, in order to be consistent with `routes_for/1`.
-      aliases = [name | _rest] = Dispatcher.aliases(route)
-
-      for key <- aliases, into: map do
-        {key, name}
-      end
-    end)
+  @spec put(t, route) :: t
+  def put(router, entry) do
+    router
+    |> put_route(entry)
+    |> put_aliases(entry)
   end
 
-  @doc """
-  Returns the routing map for the given `entries`.
-  """
-  @spec routes_for([route]) :: routes
-  def routes_for(entries) do
-    for route <- entries, into: %{} do
-      # Consistently generates a route name; see `aliases_for/1`.
-      [name | _rest] = Dispatcher.aliases(route)
-      {name, route}
-    end
+  defp put_route(router, entry) do
+    name = route_name(entry)
+    routes = Map.put(router.routes, name, entry)
+
+    %Router{router | routes: routes}
+  end
+
+  defp put_aliases(router, entry) do
+    name = route_name(entry)
+
+    aliases =
+      entry
+      |> Dispatcher.aliases()
+      |> Enum.map(&{&1, name})
+      |> Enum.into(router.aliases)
+
+    %Router{router | aliases: aliases}
+  end
+
+  # Consistently generates a route name.
+  defp route_name(route) do
+    [name | _rest] = Dispatcher.aliases(route)
+    name
   end
 
   @doc """
