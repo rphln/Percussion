@@ -5,14 +5,14 @@ defmodule Percussion.Request do
 
   alias Percussion.Request
 
+  @typedoc "Callbacks to be called right after the response is sent."
+  @type after_send :: [step]
+
   @typedoc "The list of arguments that were passed into the command."
   @type arguments :: [String.t()]
 
   @typedoc "Additional data shared between steps."
   @type assigns :: %{atom => any}
-
-  @typedoc "Callbacks to be called right before the response is sent."
-  @type before_send :: [step]
 
   @typedoc "Whether to stop propagating this request."
   @type halt :: boolean
@@ -30,9 +30,9 @@ defmodule Percussion.Request do
   @type step :: (t -> t)
 
   @type t :: %Request{
+          after_send: after_send,
           arguments: arguments,
           assigns: assigns,
-          before_send: before_send,
           halt: halt,
           invoked_with: invoked_with,
           message: message,
@@ -43,7 +43,7 @@ defmodule Percussion.Request do
 
   defstruct arguments: [],
             assigns: %{},
-            before_send: [],
+            after_send: [],
             halt: false,
             invoked_with: nil,
             message: nil,
@@ -99,14 +99,14 @@ defmodule Percussion.Request do
   end
 
   @doc """
-  Registers a callback to be invoked before the response is sent.
+  Registers a callback to be invoked after the response is sent.
 
   Callbacks are invoked regardless of the request being halted, and are executed in
   first-in, last-out order.
   """
-  @spec register_before_send(t, step) :: t
-  def register_before_send(request, callback) do
-    update_in(request.before_send, &[callback | &1])
+  @spec register_after_send(t, step) :: t
+  def register_after_send(request, callback) do
+    update_in(request.after_send, &[callback | &1])
   end
 
   @doc """
@@ -122,7 +122,7 @@ defmodule Percussion.Request do
   """
   @spec send_response(t, step) :: t
   def send_response(request, callback) do
-    request |> before_send() |> callback.()
+    request |> callback.() |> reduce(request.after_send)
   end
 
   ## Helpers.
@@ -141,8 +141,8 @@ defmodule Percussion.Request do
     end
   end
 
-  defp before_send(request) do
-    Enum.reduce(request.before_send, request, fn callback, response ->
+  defp reduce(request, pipeline) do
+    Enum.reduce(pipeline, request, fn callback, response ->
       callback.(response)
     end)
   end
