@@ -147,10 +147,12 @@ defmodule Percussion.Converters do
   end
 
   defp parse_snowflake(regex, text) do
-    with [_text, match] <- Regex.run(regex, text) do
-      Snowflake.cast(match)
-    else
-      _ -> :error
+    case Regex.run(regex, text) do
+      [_text, match] ->
+        Snowflake.cast(match)
+
+      _ ->
+        :error
     end
   end
 end
