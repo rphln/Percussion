@@ -18,8 +18,6 @@ defmodule Percussion.MixProject do
 
       # Docs
       docs: docs(),
-
-      # Docs
       name: "Percussion",
       source_url: "https://github.com/BlindJoker/Percussion",
       homepage_url: "https://blindjoker.github.io/Percussion/"
@@ -43,7 +41,7 @@ defmodule Percussion.MixProject do
 
       # Development dependencies.
       {:credo, "~> 1.0", only: :dev, runtime: false},
-      {:ex_doc, "~> 0.20", only: :dev, runtime: false}
+      {:ex_doc, "~> 0.21", only: :dev, runtime: false}
     ]
   end
 
