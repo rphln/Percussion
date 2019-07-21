@@ -7,35 +7,26 @@ defmodule Percussion.Decorators do
   alias Percussion.Request
 
   @doc """
-  Adds `--help` as a possible argument to the command.
+  Requires the command to be called in a guild.
   """
-  @spec help(String.t()) :: Request.step()
-  def help(contents) do
-    fn %Request{arguments: arguments} = request ->
-      if "--help" in arguments do
-        Request.halt(request, contents)
-      else
-        request
-      end
+  @spec guild_only(Request.t()) :: Request.t()
+  def guild_only(%Request{message: message} = request) do
+    if is_nil(message.guild_id) do
+      Request.halt(request, "This command can only be used in guilds.")
+    else
+      request
     end
   end
 
   @doc """
-  Requires the command to be called in only a guild, or only in DMs.
+  Requires the command to be called in a direct message.
   """
-  @spec in_guild?(boolean) :: Request.step()
-  def in_guild?(required) do
-    fn %Request{message: message} = request ->
-      cond do
-        required and is_nil(message.guild_id) ->
-          Request.halt(request, "This command can only be used in guilds.")
-
-        not required and not is_nil(message.guild_id) ->
-          Request.halt(request, "This command can't be used in guilds.")
-
-        true ->
-          request
-      end
+  @spec direct_message_only(Request.t()) :: Request.t()
+  def direct_message_only(%Request{message: message} = request) do
+    if is_nil(message.guild_id) do
+      request
+    else
+      Request.halt(request, "This command can't be used in guilds.")
     end
   end
 
@@ -61,16 +52,15 @@ defmodule Percussion.Decorators do
   end
 
   @doc """
-  Combines `in_guild?/2` and `whitelist_guilds/2`.
+  Combines `guild_only/1` and `whitelist_guilds/1`.
   """
-  @spec in_whitelisted_guild?([Snowflake.t()]) :: Request.step()
-  def in_whitelisted_guild?(whitelist) do
-    guild = in_guild?(true)
+  @spec whitelisted_guilds_only([Snowflake.t()]) :: Request.step()
+  def whitelisted_guilds_only(whitelist) do
     whitelist = whitelist_guilds(whitelist)
 
     fn request ->
       request
-      |> Request.map(guild)
+      |> Request.map(&guild_only/1)
       |> Request.map(whitelist)
     end
   end
