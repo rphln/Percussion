@@ -1,7 +1,7 @@
 defmodule Percussion.MixProject do
   use Mix.Project
 
-  @version "0.5.0"
+  @version "0.6.0"
   @description "A command framework for Nostrum."
 
   def project do
@@ -37,10 +37,10 @@ defmodule Percussion.MixProject do
 
   defp deps do
     [
-      {:nostrum, "~> 0.3", runtime: false},
+      {:nostrum, "~> 0.4", runtime: false},
 
       # Development dependencies.
-      {:credo, "~> 1.0", only: :dev, runtime: false},
+      {:credo, "~> 1.1", only: :dev, runtime: false},
       {:ex_doc, "~> 0.21", only: :dev, runtime: false}
     ]
   end
