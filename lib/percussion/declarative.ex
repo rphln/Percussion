@@ -15,6 +15,10 @@ defmodule Percussion.Declarative do
     to: Percussion.Declarative.Pipe,
     as: :new
 
+  defdelegate describe(root),
+    to: Percussion.Declarative.Dispatcher,
+    as: :describe
+
   defdelegate execute(root, request),
     to: Percussion.Declarative.Dispatcher,
     as: :execute

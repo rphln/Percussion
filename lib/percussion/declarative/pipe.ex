@@ -44,17 +44,17 @@ defmodule Percussion.Declarative.Pipe do
   end
 
   defimpl Dispatcher do
-    def aliases(pipe) do
-      Dispatcher.aliases(pipe.child)
+    def aliases(%Pipe{child: child}) do
+      Dispatcher.aliases(child)
     end
 
-    def describe(pipe, name) do
-      Dispatcher.describe(pipe.child, name)
+    def execute(%Pipe{child: child, pipeline: pipeline}, %Request{} = request) do
+      response = Request.pipe(request, pipeline)
+      Dispatcher.execute(child, response)
     end
 
-    def execute(pipe, request) do
-      response = Request.pipe(request, pipe.pipeline)
-      Dispatcher.execute(pipe.child, response)
+    def describe(%Pipe{child: child}) do
+      Dispatcher.describe(child)
     end
   end
 end

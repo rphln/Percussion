@@ -51,8 +51,12 @@ defmodule Percussion.Declarative.Command do
       {:ok, Request.map(request, command.dispatch)}
     end
 
-    def describe(command, _name) do
-      {:ok, command.description}
+    def describe(%Command{description: nil}) do
+      %{}
+    end
+
+    def describe(%Command{aliases: [name | _rest], description: description}) do
+      %{name => description}
     end
   end
 end

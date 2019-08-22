@@ -78,17 +78,19 @@ defmodule Percussion.Declarative.Router do
   end
 
   defimpl Dispatcher do
-    def aliases(router) do
-      Map.keys(router.aliases)
+    def aliases(%Router{aliases: aliases}) do
+      Map.keys(aliases)
     end
 
-    def describe(router, name) do
-      with {:ok, route} <- Router.resolve(router, name) do
-        Dispatcher.describe(route, name)
-      end
+    def describe(%Router{routes: routes}) do
+      Enum.reduce(routes, %{}, fn {_name, route}, accumulator ->
+        route
+        |> Dispatcher.describe()
+        |> Map.merge(accumulator)
+      end)
     end
 
-    def execute(router, request) do
+    def execute(%Router{} = router, request) do
       with {:ok, route} <- Router.resolve(router, request.invoked_with) do
         Dispatcher.execute(route, request)
       end

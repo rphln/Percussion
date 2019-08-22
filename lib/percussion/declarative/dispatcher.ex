@@ -14,10 +14,10 @@ defprotocol Percussion.Declarative.Dispatcher do
   def aliases(entry)
 
   @doc """
-  Returns the description for the command that matches on `name`.
+  Returns the help for every command under this dispatcher.
   """
-  @spec describe(term, String.t()) :: {:ok, String.t() | nil} | :error
-  def describe(entry, name)
+  @spec describe(term) :: %{String.t() => Command.t()}
+  def describe(entry)
 
   @doc """
   Executes the command that matches on `t:Percussion.Request.t/0`.
