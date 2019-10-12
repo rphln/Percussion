@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.21.1">
+    <meta name="project" content="Percussion v0.7.0">
+    <title>🥁 Percussion — Percussion v0.7.0</title>
+    <link rel="stylesheet" href="dist/html-9914b37a220eb2c313b6.css" />
+    <script src="dist/sidebar_items-5947c6c732.js"></script>
+      <script src="docs_config.js"></script>
+    <script async src="dist/html-9914b37a220eb2c313b6.js"></script>
+  </head>
+  <body data-type="extras">
+    <script>try { if(localStorage.getItem('night-mode') === 'true') document.body.className += ' night-mode'; } catch (e) { }</script>
+<div class="main">
+
+<button class="sidebar-button sidebar-toggle">
+  <span class="icon-menu" title="Collapse/expand sidebar"></span>
+</button>
+
+<section class="sidebar">
+  <form class="sidebar-search" action="search.html">
+    <button type="submit" class="search-button">
+      <span class="icon-search" aria-hidden="true"></span>
+    </button>
+    <button type="button" tabindex="-1" class="search-close-button">
+      <span class="icon-cross" title="Cancel search"></span>
+    </button>
+    <label class="search-label">
+      <input name="q" type="text" id="search-list" class="search-input" placeholder="Search..." aria-label="Search" autocomplete="off" />
+    </label>
+  </form>
+
+  <div class="autocomplete">
+    <div class="autocomplete-results">
+    </div>
+  </div>
+
+  <div class="sidebar-header">
+    <div class="sidebar-projectDetails">
+      <a href="https://blindjoker.github.io/Percussion/" class="sidebar-projectName">
+Percussion      </a>
+      <h2 class="sidebar-projectVersion">
+        v0.7.0
+      </h2>
+    </div>
+  </div>
+
+  <ul class="sidebar-listNav">
+    <li><a id="extras-list" href="#full-list">Pages</a></li>
+
+      <li><a id="modules-list" href="#full-list">Modules</a></li>
+
+
+  </ul>
+  <div class="gradient"></div>
+  <ul id="full-list" class="sidebar-fullList"></ul>
+</section>
+
+<section class="content">
+  <div class="content-outer">
+    <div id="content" class="content-inner">
+
+<h1>🥁 Percussion</h1>
+<p>Percussion is a command framework for <a href="https://github.com/Kraigie/nostrum" title="">Nostrum</a>. It is based on the concept of
+transformation pipelines for command requests, being loosely inspired by Plug.</p>
+<p>The documentation can be found <a href="https://blindjoker.github.io/Percussion" title="">here</a>. If you&#39;re looking for examples, see <a href="https://github.com/BlindJoker/Katsuragi" title="">Katsuragi</a>.</p>
+<h2 id="about-the-pipeline" class="section-heading">
+  <a href="#about-the-pipeline" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  About the pipeline.
+</h2>
+
+<p>Chaining functions is the main way dealing with command requests (i.e., calls) in
+Percussion.</p>
+<p>The pipeline is composed of a list of steps that are called in order, which are simply
+request to request functions:</p>
+<pre><code class="nohighlight makeup elixir"><span class="kd">def</span><span class="w"> </span><span class="nf">ping</span><span class="p" data-group-id="5681679578-1">(</span><span class="n">request</span><span class="p" data-group-id="5681679578-1">)</span><span class="w"> </span><span class="k" data-group-id="5681679578-2">do</span><span class="w">
+  </span><span class="n">reply</span><span class="p" data-group-id="5681679578-3">(</span><span class="n">request</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Pong!&quot;</span><span class="p" data-group-id="5681679578-3">)</span><span class="w">
+</span><span class="k" data-group-id="5681679578-2">end</span></code></pre>
+<p>Additionally, steps have the ability to stop the whole pipeline prematurely by calling
+<a href="Percussion.Request.html#halt/1"><code class="inline">Percussion.Request.halt/1</code></a> on the request; this may be used, for example, to handle
+errors that occur in the middle of the pipeline process.</p>
+<h2 id="installation" class="section-heading">
+  <a href="#installation" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Installation
+</h2>
+
+<p>At this moment, Percussion is highly volatile; if you&#39;re feeling adventurous and want to
+try it, simply add it as a GitHub dependency.</p>
+<pre><code class="nohighlight makeup elixir"><span class="kd">def</span><span class="w"> </span><span class="nf">deps</span><span class="w"> </span><span class="k" data-group-id="2785631648-1">do</span><span class="w">
+  </span><span class="p" data-group-id="2785631648-2">[</span><span class="w">
+    </span><span class="p" data-group-id="2785631648-3">{</span><span class="ss">:percussion</span><span class="p">,</span><span class="w"> </span><span class="ss">github</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;BlindJoker/Percussion&quot;</span><span class="p" data-group-id="2785631648-3">}</span><span class="w">
+  </span><span class="p" data-group-id="2785631648-2">]</span><span class="w">
+</span><span class="k" data-group-id="2785631648-1">end</span></code></pre>
+<h2 id="acknowledgements" class="section-heading">
+  <a href="#acknowledgements" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Acknowledgements
+</h2>
+
+<p>Percussion borrows some of its code, either verbatim or as inspiration, from the
+<a href="https://github.com/jchristgit/nosedrum" title="">nosedrum</a> library, which is licensed under the ISC license. See their repository for
+more information.</p>
+<h2 id="license" class="section-heading">
+  <a href="#license" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  License
+</h2>
+
+<p>This project is licensed under the <a href="https://opensource.org/licenses/MIT" title="">MIT</a> license.</p>
+      <footer class="footer">
+        <p>
+          <span class="line">
+            Built using
+            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener">ExDoc</a> (v0.21.1),
+          </span>
+          <span class="line">
+            designed by
+            <a href="https://twitter.com/dignifiedquire" target="_blank" rel="noopener" title="@dignifiedquire">Friedel Ziegelmayer</a>.
+          </span>
+        </p>
+        <p>
+          <button class="line footer-button night-mode-toggle">
+            Toggle night mode
+          </button>
+          <button class="line footer-button tooltips-toggle">
+            <span class="tooltips-option-disable">Disable tooltips</span>
+            <span class="tooltips-option-enable">Enable tooltips</span>
+          </button>
+          <button class="line footer-button display-shortcuts-help">
+            Display keyboard shortcuts
+          </button>
+          <button class="line footer-button display-quick-switch">
+            Go to a HexDocs package
+          </button>
+        </p>
+      </footer>
+    </div>
+  </div>
+</section>
+</div>
+  </body>
+</html>

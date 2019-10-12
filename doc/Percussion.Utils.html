@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.21.1">
+    <meta name="project" content="Percussion v0.7.0">
+    <title>Percussion.Utils — Percussion v0.7.0</title>
+    <link rel="stylesheet" href="dist/html-9914b37a220eb2c313b6.css" />
+    <script src="dist/sidebar_items-5947c6c732.js"></script>
+      <script src="docs_config.js"></script>
+    <script async src="dist/html-9914b37a220eb2c313b6.js"></script>
+  </head>
+  <body data-type="modules">
+    <script>try { if(localStorage.getItem('night-mode') === 'true') document.body.className += ' night-mode'; } catch (e) { }</script>
+<div class="main">
+
+<button class="sidebar-button sidebar-toggle">
+  <span class="icon-menu" title="Collapse/expand sidebar"></span>
+</button>
+
+<section class="sidebar">
+  <form class="sidebar-search" action="search.html">
+    <button type="submit" class="search-button">
+      <span class="icon-search" aria-hidden="true"></span>
+    </button>
+    <button type="button" tabindex="-1" class="search-close-button">
+      <span class="icon-cross" title="Cancel search"></span>
+    </button>
+    <label class="search-label">
+      <input name="q" type="text" id="search-list" class="search-input" placeholder="Search..." aria-label="Search" autocomplete="off" />
+    </label>
+  </form>
+
+  <div class="autocomplete">
+    <div class="autocomplete-results">
+    </div>
+  </div>
+
+  <div class="sidebar-header">
+    <div class="sidebar-projectDetails">
+      <a href="https://blindjoker.github.io/Percussion/" class="sidebar-projectName">
+Percussion      </a>
+      <h2 class="sidebar-projectVersion">
+        v0.7.0
+      </h2>
+    </div>
+  </div>
+
+  <ul class="sidebar-listNav">
+    <li><a id="extras-list" href="#full-list">Pages</a></li>
+
+      <li><a id="modules-list" href="#full-list">Modules</a></li>
+
+
+  </ul>
+  <div class="gradient"></div>
+  <ul id="full-list" class="sidebar-fullList"></ul>
+</section>
+
+<section class="content">
+  <div class="content-outer">
+    <div id="content" class="content-inner">
+
+      <h1>
+        <small class="app-vsn">Percussion v0.7.0</small>
+Percussion.Utils          <a href="https://github.com/BlindJoker/Percussion/blob/v0.7.0/lib/percussion/utils.ex#L1" title="View Source" class="view-source" rel="help">
+            <span class="icon-code" aria-hidden="true"></span>
+            <span class="sr-only">View Source</span>
+          </a>
+      </h1>
+
+
+        <section id="moduledoc">
+<p>Utility functions that don&#39;t warrant their own modules, but are likely useful for most
+bots.</p>
+        </section>
+
+        <section id="summary" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#summary">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Summary
+          </h1>
+  <div class="summary-functions summary">
+    <h2>
+      <a href="#functions">Functions</a>
+    </h2>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#create_message/1">create_message(request)</a>
+  </div>
+    <div class="summary-synopsis"><p>Replies a request to the respective channel.</p></div>
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#split/1">split(text)</a>
+  </div>
+    <div class="summary-synopsis"><p>Tries splitting the given <code class="inline">text</code> with <a href="https://hexdocs.pm/elixir/OptionParser.html#split/1"><code class="inline">OptionParser.split/1</code></a>, and falls back to
+<a href="https://hexdocs.pm/elixir/String.html#split/1"><code class="inline">String.split/1</code></a> if it fails.</p></div>
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#to_request/2">to_request(message, contents)</a>
+  </div>
+    <div class="summary-synopsis"><p>Creates a <a href="Percussion.Request.html#t:t/0"><code class="inline">Percussion.Request.t/0</code></a> from a <a href="https://hexdocs.pm/nostrum/0.4.0/Nostrum.Struct.Message.html#t:t/0"><code class="inline">Nostrum.Struct.Message.t/0</code></a>.</p></div>
+</div>
+  </div>
+        </section>
+
+        <section id="functions" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#functions">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+Functions          </h1>
+          <div class="functions-list">
+<section class="detail" id="create_message/1">
+  <div class="detail-header">
+    <a href="#create_message/1" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature">create_message(request)</h1>
+      <a href="https://github.com/BlindJoker/Percussion/blob/v0.7.0/lib/percussion/utils.ex#L50" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+      <div class="specs">
+          <pre>create_message(<a href="Percussion.Request.html#t:t/0">Percussion.Request.t</a>()) ::
+  {:ok, <a href="https://hexdocs.pm/nostrum/0.4.0/Nostrum.Struct.Message.html#t:t/0">Nostrum.Struct.Message.t</a>()} | <a href="https://hexdocs.pm/nostrum/0.4.0/Nostrum.Api.html#t:error/0">Nostrum.Api.error</a>()</pre>
+      </div>
+  </div>
+  <section class="docstring">
+<p>Replies a request to the respective channel.</p>
+  </section>
+</section>
+<section class="detail" id="split/1">
+  <div class="detail-header">
+    <a href="#split/1" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature">split(text)</h1>
+      <a href="https://github.com/BlindJoker/Percussion/blob/v0.7.0/lib/percussion/utils.ex#L26" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+      <div class="specs">
+          <pre>split(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) :: [<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()]</pre>
+      </div>
+  </div>
+  <section class="docstring">
+<p>Tries splitting the given <code class="inline">text</code> with <a href="https://hexdocs.pm/elixir/OptionParser.html#split/1"><code class="inline">OptionParser.split/1</code></a>, and falls back to
+<a href="https://hexdocs.pm/elixir/String.html#split/1"><code class="inline">String.split/1</code></a> if it fails.</p>
+<h2 id="split/1-examples" class="section-heading">
+  <a href="#split/1-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Examples
+</h2>
+
+<pre><code class="nohighlight makeup elixir"><span class="gp unselectable">iex&gt; </span><span class="nc">Percussion.Utils</span><span class="o">.</span><span class="n">split</span><span class="p" data-group-id="1087006844-1">(</span><span class="s">~s[choose &quot;lorem ipsum&quot; &quot;hello world&quot;]</span><span class="p" data-group-id="1087006844-1">)</span><span class="w">
+</span><span class="p" data-group-id="1087006844-2">[</span><span class="s">&quot;choose&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;lorem ipsum&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;hello world&quot;</span><span class="p" data-group-id="1087006844-2">]</span><span class="w">
+
+</span><span class="gp unselectable">iex&gt; </span><span class="nc">Percussion.Utils</span><span class="o">.</span><span class="n">split</span><span class="p" data-group-id="1087006844-3">(</span><span class="s">~s[I&#39;m a bot]</span><span class="p" data-group-id="1087006844-3">)</span><span class="w">
+</span><span class="p" data-group-id="1087006844-4">[</span><span class="s">&quot;I&#39;m&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;a&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;bot&quot;</span><span class="p" data-group-id="1087006844-4">]</span></code></pre>
+  </section>
+</section>
+<section class="detail" id="to_request/2">
+  <div class="detail-header">
+    <a href="#to_request/2" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature">to_request(message, contents)</h1>
+      <a href="https://github.com/BlindJoker/Percussion/blob/v0.7.0/lib/percussion/utils.ex#L40" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+      <div class="specs">
+          <pre>to_request(<a href="https://hexdocs.pm/nostrum/0.4.0/Nostrum.Struct.Message.html#t:t/0">Nostrum.Struct.Message.t</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) :: <a href="Percussion.Request.html#t:t/0">Percussion.Request.t</a>()</pre>
+      </div>
+  </div>
+  <section class="docstring">
+<p>Creates a <a href="Percussion.Request.html#t:t/0"><code class="inline">Percussion.Request.t/0</code></a> from a <a href="https://hexdocs.pm/nostrum/0.4.0/Nostrum.Struct.Message.html#t:t/0"><code class="inline">Nostrum.Struct.Message.t/0</code></a>.</p>
+<p>Argument <code class="inline">contents</code> must be the unprefixed contents of the message that triggered
+this command. Note that enforcing that <code class="inline">message</code> and <code class="inline">contents</code> matches is up to the
+caller.</p>
+  </section>
+</section>
+          </div>
+        </section>
+      <footer class="footer">
+        <p>
+          <span class="line">
+            Built using
+            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener">ExDoc</a> (v0.21.1),
+          </span>
+          <span class="line">
+            designed by
+            <a href="https://twitter.com/dignifiedquire" target="_blank" rel="noopener" title="@dignifiedquire">Friedel Ziegelmayer</a>.
+          </span>
+        </p>
+        <p>
+          <button class="line footer-button night-mode-toggle">
+            Toggle night mode
+          </button>
+          <button class="line footer-button tooltips-toggle">
+            <span class="tooltips-option-disable">Disable tooltips</span>
+            <span class="tooltips-option-enable">Enable tooltips</span>
+          </button>
+          <button class="line footer-button display-shortcuts-help">
+            Display keyboard shortcuts
+          </button>
+          <button class="line footer-button display-quick-switch">
+            Go to a HexDocs package
+          </button>
+        </p>
+      </footer>
+    </div>
+  </div>
+</section>
+</div>
+  </body>
+</html>
