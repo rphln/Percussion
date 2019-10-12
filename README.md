@@ -1,7 +1,5 @@
 # 🥁 Percussion
 
-[![Build Status](https://travis-ci.org/BlindJoker/Percussion.svg?branch=master)](https://travis-ci.org/BlindJoker/Percussion)
-
 Percussion is a command framework for [Nostrum]. It is based on the concept of
 transformation pipelines for command requests, being loosely inspired by Plug.
 
