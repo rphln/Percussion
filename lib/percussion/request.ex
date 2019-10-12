@@ -26,8 +26,11 @@ defmodule Percussion.Request do
   @typedoc "The response to send to the user."
   @type response :: String.t() | nil
 
+  @typedoc "A value able to be converted into a request or response."
+  @type into :: t | String.t()
+
   @typedoc "A single step in the pipeline."
-  @type step :: (t -> t)
+  @type step :: (t -> into)
 
   @type t :: %Request{
           after_send: after_send,
@@ -53,15 +56,23 @@ defmodule Percussion.Request do
   Assigns multiple values to the request.
   """
   @spec assign(t, Keyword.t()) :: t
-  def assign(request, assigns) do
+  def assign(%Request{} = request, assigns) do
     update_in(request.assigns, &Enum.into(assigns, &1))
+  end
+
+  @doc """
+  Sets the response for the request.
+  """
+  @spec reply(t, String.t()) :: t
+  def reply(%Request{} = request, response) do
+    %Request{request | response: response}
   end
 
   @doc """
   Halts the pipeline, preventing downstream pipes from being executed.
   """
   @spec halt(t) :: t
-  def halt(request) do
+  def halt(%Request{} = request) do
     %Request{request | halt: true}
   end
 
@@ -72,30 +83,49 @@ defmodule Percussion.Request do
   Equivalent to calling `halt/1` and `reply/2`.
   """
   @spec halt(t, String.t()) :: t
-  def halt(request, response) do
-    request |> reply(response) |> halt()
+  def halt(%Request{} = request, response) do
+    request
+    |> reply(response)
+    |> halt()
+  end
+
+  @doc """
+  Maps `request` by applying `fun` on it.
+
+  If the value returned by `fun` is a string, the request is halted with the returned
+  string as a response.
+  """
+  @spec map(t, step) :: t
+  def map(request, fun) do
+    case fun.(request) do
+      response when is_bitstring(response) ->
+        halt(request, response)
+
+      response ->
+        response
+    end
   end
 
   @doc """
   Maps `request` by applying a function if it's not halted, otherwise leave it
   untouched.
   """
-  @spec map(t, step) :: t
-  def map(request, fun)
+  @spec and_then(t, step) :: t
+  def and_then(request, fun)
 
-  def map(%{halt: false} = request, fun), do: fun.(request)
+  def and_then(%Request{halt: true} = request, _fun), do: request
 
-  def map(%{halt: true} = request, _fun), do: request
+  def and_then(%Request{halt: false} = request, fun), do: map(request, fun)
 
   @doc """
   Maps `request` with each element in `pipeline` in order.
 
-  See `map/2`. This function terminates when `pipeline` is exhausted, or if any of its
-  elements halts the request.
+  See `and_then/2`. This function terminates when `pipeline` is exhausted, or if any of
+  its elements halts the request.
   """
   @spec pipe(t, [step]) :: t
-  def pipe(request, pipeline) do
-    Enum.reduce_while(pipeline, request, &apply_step/2)
+  def pipe(%Request{} = request, pipeline) do
+    Enum.reduce(pipeline, request, &and_then(&2, &1))
   end
 
   @doc """
@@ -105,45 +135,21 @@ defmodule Percussion.Request do
   first-in, last-out order.
   """
   @spec register_after_send(t, step) :: t
-  def register_after_send(request, callback) do
+  def register_after_send(%Request{} = request, callback) do
     update_in(request.after_send, &[callback | &1])
-  end
-
-  @doc """
-  Sets the response for the request.
-  """
-  @spec reply(t, String.t()) :: t
-  def reply(request, response) do
-    %Request{request | response: response}
   end
 
   @doc """
   Sends a response to the client using `callback`.
   """
   @spec send_response(t, step) :: t
-  def send_response(request, callback) do
-    request |> callback.() |> reduce(request.after_send)
-  end
-
-  ## Helpers.
-
-  defp apply_step(fun, request) do
-    case response = Request.map(request, fun) do
-      %Request{halt: false} ->
-        {:cont, response}
-
-      %Request{halt: true} ->
-        {:halt, response}
-
-      _ ->
-        raise ArgumentError,
-          message: "Expected `#{inspect(fun)}` to return a `Percussion.Request`."
-    end
+  def send_response(%Request{} = request, callback) do
+    request
+    |> callback.()
+    |> reduce(request.after_send)
   end
 
   defp reduce(request, pipeline) do
-    Enum.reduce(pipeline, request, fn callback, response ->
-      callback.(response)
-    end)
+    Enum.reduce(pipeline, request, &map(&2, &1))
   end
 end

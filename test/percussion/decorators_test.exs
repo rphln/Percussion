@@ -46,15 +46,19 @@ defmodule Percussion.DecoratorsTest do
 
   describe "direct_message_only/1" do
     test "works correctly", %{requests: requests} do
-      assert %{halt: false} = Subject.direct_message_only(requests.to_nil)
-      assert %{halt: true} = Subject.direct_message_only(requests.to_foo)
+      predicate = Subject.direct_message_only()
+
+      assert %{halt: false} = predicate.(requests.to_nil)
+      assert %{halt: true} = predicate.(requests.to_foo)
     end
   end
 
   describe "guild_only/1" do
     test "works correctly", %{requests: requests} do
-      assert %{halt: true} = Subject.guild_only(requests.to_nil)
-      assert %{halt: false} = Subject.guild_only(requests.to_foo)
+      predicate = Subject.guild_only()
+
+      assert %{halt: true} = predicate.(requests.to_nil)
+      assert %{halt: false} = predicate.(requests.to_foo)
     end
   end
 

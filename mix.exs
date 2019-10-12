@@ -1,7 +1,7 @@
 defmodule Percussion.MixProject do
   use Mix.Project
 
-  @version "0.6.0"
+  @version "0.7.0"
   @description "A command framework for Nostrum."
 
   def project do
@@ -59,13 +59,6 @@ defmodule Percussion.MixProject do
 
   defp groups_for_modules do
     [
-      Declarative: [
-        Percussion.Declarative,
-        Percussion.Declarative.Command,
-        Percussion.Declarative.Pipe,
-        Percussion.Declarative.Router,
-        Percussion.Declarative.Dispatcher
-      ],
       Utils: [
         Percussion.Converters,
         Percussion.Decorators

@@ -36,11 +36,5 @@ defmodule Percussion.RequestTest do
 
       assert context.halted == response
     end
-
-    test "rejects non-Request", context do
-      assert_raise ArgumentError, fn ->
-        Request.pipe(context.request, context.invalid)
-      end
-    end
   end
 end
