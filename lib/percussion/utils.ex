@@ -39,7 +39,15 @@ defmodule Percussion.Utils do
   @spec to_request(Message.t(), String.t()) :: Request.t()
   def to_request(%Message{} = message, contents) do
     with [command | arguments] <- split(contents) do
-      %Request{arguments: arguments, invoked_with: command, message: message}
+      %Request{
+        arguments: arguments,
+        author_id: message.author_id,
+        channel_id: message.channel_id,
+        guild_id: message.guild_id,
+        invoked_with: command,
+        message: message,
+        message_id: message.id
+      }
     end
   end
 

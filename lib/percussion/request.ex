@@ -14,14 +14,29 @@ defmodule Percussion.Request do
   @typedoc "Additional data shared between steps."
   @type assigns :: %{atom => any}
 
+  @typedoc "The user which triggered this request."
+  @type author_id :: term
+
+  @typedoc "The channel in which this request was made."
+  @type channel_id :: term
+
+  @typedoc "The server in which this request was made."
+  @type guild_id :: term
+
   @typedoc "Whether to stop propagating this request."
   @type halt :: boolean
 
   @typedoc "The command name that triggered this request."
   @type invoked_with :: String.t()
 
+  @typedoc "Data for the message which triggered this request."
+  @type message :: term | nil
+
   @typedoc "The message which triggered this request."
-  @type message :: Nostrum.Struct.Message.t()
+  @type message_id :: term
+
+  @typedoc "Whether a reply for this request has already been sent."
+  @type replied :: boolean
 
   @typedoc "The response to send to the user."
   @type response :: String.t() | nil
@@ -36,21 +51,33 @@ defmodule Percussion.Request do
           after_send: after_send,
           arguments: arguments,
           assigns: assigns,
+          author_id: author_id,
+          channel_id: channel_id,
+          guild_id: guild_id,
           halt: halt,
           invoked_with: invoked_with,
           message: message,
+          message_id: message_id,
+          replied: replied,
           response: response
         }
 
   @enforce_keys [:invoked_with]
 
-  defstruct arguments: [],
-            assigns: %{},
-            after_send: [],
-            halt: false,
-            invoked_with: nil,
-            message: nil,
-            response: nil
+  defstruct [
+    :author_id,
+    :channel_id,
+    :guild_id,
+    :invoked_with,
+    :message,
+    :message_id,
+    :response,
+    after_send: [],
+    arguments: [],
+    assigns: %{},
+    halt: false,
+    replied: false
+  ]
 
   @doc """
   Assigns multiple values to the request.
@@ -96,7 +123,7 @@ defmodule Percussion.Request do
   string as a response.
   """
   @spec map(t, step) :: t
-  def map(request, fun) do
+  def map(%Request{} = request, fun) do
     case fun.(request) do
       response when is_bitstring(response) ->
         halt(request, response)

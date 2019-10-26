@@ -1,7 +1,7 @@
 defmodule Percussion.MixProject do
   use Mix.Project
 
-  @version "0.7.0"
+  @version "0.8.0"
   @description "A command framework for Nostrum."
 
   def project do
