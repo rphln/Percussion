@@ -27,25 +27,25 @@ defmodule Percussion.Router do
   @doc """
   Executes the command that matches on `request`.
   """
-  @spec dispatch(routes, Request.t()) :: {:ok, Request.t()} | :error
+  @spec dispatch(routes, Request.t()) :: {:ok, Request.t() | nil} | :error
   def dispatch(routes, request) do
-    resolve_and_apply(routes, request.invoked_with, :call, [request])
+    resolve_and_apply(routes, request.invoked_with, {:call, 1}, [request])
   end
 
   @doc """
   Returns the help message for the command that matches on `name`.
   """
-  @spec help(routes, String.t()) :: {:ok, String.t()} | :error
+  @spec help(routes, String.t()) :: {:ok, String.t() | nil} | :error
   def help(routes, name) do
-    resolve_and_apply(routes, name, :help)
+    resolve_and_apply(routes, name, {:help, 0})
   end
 
   @doc """
   Returns the usage messages for the command that matches on `name`.
   """
-  @spec usage(routes, String.t()) :: {:ok, [String.t()]} | :error
+  @spec usage(routes, String.t()) :: {:ok, [String.t()] | nil} | :error
   def usage(routes, name) do
-    resolve_and_apply(routes, name, :usage)
+    resolve_and_apply(routes, name, {:usage, 0})
   end
 
   @doc """
@@ -56,13 +56,14 @@ defmodule Percussion.Router do
     Map.fetch(routes, name)
   end
 
-  defp resolve_and_apply(routes, name, method, params \\ []) do
-    case resolve(routes, name) do
-      {:ok, route} ->
-        {:ok, apply(route, method, params)}
+  defp resolve_and_apply(routes, name, {method, arity}, params \\ []) do
+    with {:ok, route} <- resolve(routes, name) do
+      return =
+        if function_exported?(route, method, arity) do
+          apply(route, method, params)
+        end
 
-      :error ->
-        :error
+      {:ok, return}
     end
   end
 end
