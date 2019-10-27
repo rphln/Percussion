@@ -114,38 +114,6 @@ defmodule Percussion.Converters do
     parse_snowflake(@animated_emoji_regex, text)
   end
 
-  @doc """
-  Converts any formatted Discord emoji to a `t:Nostrum.Snowflake.t/0`.
-
-  ## Examples
-
-      iex> Percussion.Converters.emoji_to_id("<a:thonk:123456789>")
-      {:animated, 123456789}
-
-      iex> Percussion.Converters.emoji_to_id("<:thonk:123456789>")
-      {:static, 123456789}
-
-      iex> Percussion.Converters.emoji_to_id("<@123456789>")
-      :error
-
-      iex> Percussion.Converters.emoji_to_id("123456789")
-      :error
-
-  """
-  def emoji_to_id(text) do
-    # Maybe write this some other way?
-    with {:static, :error} <- {:static, static_emoji_to_id(text)},
-         {:animated, :error} <- {:animated, animated_emoji_to_id(text)} do
-      :error
-    else
-      {:static, {:ok, id}} ->
-        {:static, id}
-
-      {:animated, {:ok, id}} ->
-        {:animated, id}
-    end
-  end
-
   defp parse_snowflake(regex, text) do
     case Regex.run(regex, text) do
       [_text, match] ->
