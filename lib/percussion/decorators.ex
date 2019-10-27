@@ -5,7 +5,6 @@ defmodule Percussion.Decorators do
 
   require Logger
 
-  alias Nostrum.Snowflake
   alias Percussion.Request
 
   @doc """
@@ -13,12 +12,12 @@ defmodule Percussion.Decorators do
   """
   @spec guild_only :: Request.step()
   def guild_only do
-    fn %Request{message: message} = request ->
-      if is_nil(message.guild_id) do
+    fn
+      request = %Request{guild_id: nil} ->
         Request.halt(request, "This command can only be used in guilds.")
-      else
+
+      request = %Request{} ->
         request
-      end
     end
   end
 
@@ -27,12 +26,12 @@ defmodule Percussion.Decorators do
   """
   @spec direct_message_only :: Request.step()
   def direct_message_only do
-    fn %Request{message: message} = request ->
-      if is_nil(message.guild_id) do
+    fn
+      request = %Request{guild_id: nil} ->
         request
-      else
+
+      request = %Request{} ->
         Request.halt(request, "This command can't be used in guilds.")
-      end
     end
   end
 
@@ -41,10 +40,10 @@ defmodule Percussion.Decorators do
 
   Note that it can still be used in DMs.
   """
-  @spec whitelist_guilds([Snowflake.t()]) :: Request.step()
+  @spec whitelist_guilds([Request.guild_id()]) :: Request.step()
   def whitelist_guilds(whitelist) do
-    fn %Request{message: message} = request ->
-      if is_nil(message.guild_id) or message.guild_id in whitelist do
+    fn %Request{guild_id: guild_id} = request ->
+      if is_nil(guild_id) or guild_id in whitelist do
         request
       else
         Request.halt(request, "This command can't be used in this server.")
@@ -55,7 +54,7 @@ defmodule Percussion.Decorators do
   @doc """
   Combines `guild_only/1` and `whitelist_guilds/1`.
   """
-  @spec whitelisted_guilds_only([Snowflake.t()]) :: Request.step()
+  @spec whitelisted_guilds_only([Request.guild_id()]) :: Request.step()
   def whitelisted_guilds_only(whitelist) do
     fn %Request{} = request ->
       request
@@ -67,10 +66,10 @@ defmodule Percussion.Decorators do
   @doc """
   Prevents the command from being called by non-whitelisted users.
   """
-  @spec whitelist_users([Snowflake.t()]) :: Request.step()
+  @spec whitelist_users([Request.author_id()]) :: Request.step()
   def whitelist_users(whitelist) do
-    fn %Request{message: message} = request ->
-      if message.author.id in whitelist do
+    fn %Request{author_id: author_id} = request ->
+      if author_id in whitelist do
         request
       else
         Request.halt(request, "Permission denied.")

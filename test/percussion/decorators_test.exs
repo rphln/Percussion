@@ -4,9 +4,6 @@ defmodule Percussion.DecoratorsTest do
   alias Percussion.Decorators, as: Subject
   alias Percussion.Request
 
-  alias Nostrum.Struct.Message
-  alias Nostrum.Struct.User
-
   setup do
     guilds = %{
       foo: 1_234_567_890,
@@ -21,23 +18,23 @@ defmodule Percussion.DecoratorsTest do
     requests = %{
       to_foo: %Request{
         invoked_with: "",
-        message: %Message{guild_id: guilds.foo}
+        guild_id: guilds.foo
       },
       to_bar: %Request{
         invoked_with: "",
-        message: %Message{guild_id: guilds.bar}
+        guild_id: guilds.bar
       },
       to_nil: %Request{
         invoked_with: "",
-        message: %Message{guild_id: nil}
+        guild_id: nil
       },
       from_alice: %Request{
         invoked_with: "",
-        message: %Message{author: %User{id: authors.alice}}
+        author_id: authors.alice
       },
       from_bob: %Request{
         invoked_with: "",
-        message: %Message{author: %User{id: authors.bob}}
+        author_id: authors.bob
       }
     }
 

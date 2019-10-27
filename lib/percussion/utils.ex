@@ -41,7 +41,7 @@ defmodule Percussion.Utils do
     with [command | arguments] <- split(contents) do
       %Request{
         arguments: arguments,
-        author_id: message.author_id,
+        author_id: message.author.id,
         channel_id: message.channel_id,
         guild_id: message.guild_id,
         invoked_with: command,
