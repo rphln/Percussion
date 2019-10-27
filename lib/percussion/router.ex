@@ -27,7 +27,7 @@ defmodule Percussion.Router do
   @doc """
   Executes the command that matches on `request`.
   """
-  @spec dispatch(routes, Request.t()) :: Request.t()
+  @spec dispatch(routes, Request.t()) :: {:ok, Request.t()} | :error
   def dispatch(routes, request) do
     resolve_and_apply(routes, request.invoked_with, :call, [request])
   end
