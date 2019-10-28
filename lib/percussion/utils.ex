@@ -32,23 +32,19 @@ defmodule Percussion.Utils do
   @doc """
   Creates a `t:Percussion.Request.t/0` from a `t:Nostrum.Struct.Message.t/0`.
 
-  Argument `contents` must be the unprefixed contents of the message that triggered
-  this command. Note that enforcing that `message` and `contents` matches is up to the
-  caller.
+  Note that `invoked_with` must be the unprefixed name of the requested command.
   """
-  @spec to_request(Message.t(), String.t()) :: Request.t()
-  def to_request(%Message{} = message, contents) do
-    with [command | arguments] <- split(contents) do
-      %Request{
-        arguments: arguments,
-        author_id: message.author.id,
-        channel_id: message.channel_id,
-        guild_id: message.guild_id,
-        invoked_with: command,
-        message: message,
-        message_id: message.id
-      }
-    end
+  @spec to_request(Message.t(), String.t(), [String.t()]) :: Request.t()
+  def to_request(%Message{} = message, invoked_with, arguments \\ []) do
+    %Request{
+      arguments: arguments,
+      author_id: message.author.id,
+      channel_id: message.channel_id,
+      guild_id: message.guild_id,
+      invoked_with: invoked_with,
+      message: message,
+      message_id: message.id
+    }
   end
 
   @doc """
