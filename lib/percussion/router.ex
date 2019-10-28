@@ -29,7 +29,11 @@ defmodule Percussion.Router do
   """
   @spec dispatch(routes, Request.t()) :: {:ok, Request.t() | nil} | :error
   def dispatch(routes, request) do
-    resolve_and_apply(routes, request.invoked_with, {:call, 1}, [request])
+    with {:ok, route} <- resolve(routes, request.invoked_with) do
+      # Routes *must* implement the `call/1` method.
+      response = Request.and_then(request, &apply(route, :call, [&1]))
+      {:ok, response}
+    end
   end
 
   @doc """
