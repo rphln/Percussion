@@ -17,7 +17,7 @@ defmodule Percussion.Command do
   @doc """
   Executes the command on the request.
   """
-  @callback call(request :: Request.t()) :: Request.t()
+  @callback call(request :: Request.t()) :: Request.into()
 
   @doc """
   Returns the help message for this command.
