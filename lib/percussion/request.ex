@@ -8,10 +8,10 @@ defmodule Percussion.Request do
   @typedoc "Callbacks to be called right after the response is sent."
   @type after_send :: [step]
 
-  @typedoc "The list of arguments that were passed into the command."
+  @typedoc "The arguments that were passed to the command."
   @type arguments :: [String.t()]
 
-  @typedoc "Additional data shared between steps."
+  @typedoc "Data shared between steps."
   @type assigns :: %{atom => any}
 
   @typedoc "The user which triggered this request."
@@ -20,29 +20,26 @@ defmodule Percussion.Request do
   @typedoc "The channel in which this request was made."
   @type channel_id :: term
 
-  @typedoc "The server in which this request was made."
+  @typedoc "The guild in which this request was made."
   @type guild_id :: term
 
   @typedoc "Whether to stop propagating this request."
   @type halt :: boolean
 
+  @typedoc "A value that can converted into a `t:Request.t/0`."
+  @type into :: t | String.t()
+
   @typedoc "The command name that triggered this request."
   @type invoked_with :: String.t()
 
-  @typedoc "Data for the message which triggered this request."
+  @typedoc "Reference to the message which triggered this request."
   @type message :: term | nil
 
   @typedoc "The message which triggered this request."
   @type message_id :: term
 
-  @typedoc "Whether a reply for this request has already been sent."
-  @type replied :: boolean
-
   @typedoc "The response to send to the user."
   @type response :: String.t() | nil
-
-  @typedoc "A value able to be converted into a request or response."
-  @type into :: t | String.t()
 
   @typedoc "A single step in the pipeline."
   @type step :: (t -> into)
@@ -58,7 +55,6 @@ defmodule Percussion.Request do
           invoked_with: invoked_with,
           message: message,
           message_id: message_id,
-          replied: replied,
           response: response
         }
 
@@ -75,8 +71,7 @@ defmodule Percussion.Request do
     after_send: [],
     arguments: [],
     assigns: %{},
-    halt: false,
-    replied: false
+    halt: false
   ]
 
   @doc """
@@ -117,6 +112,14 @@ defmodule Percussion.Request do
   end
 
   @doc """
+  Resumes a halted pipeline.
+  """
+  @spec resume(t) :: t
+  def resume(%Request{} = request) do
+    %Request{request | halt: false}
+  end
+
+  @doc """
   Maps `request` by applying `fun` on it.
 
   If the value returned by `fun` is a string, the request is halted with the returned
@@ -143,6 +146,17 @@ defmodule Percussion.Request do
   def and_then(%Request{halt: true} = request, _fun), do: request
 
   def and_then(%Request{halt: false} = request, fun), do: map(request, fun)
+
+  @doc """
+  Maps `request` by applying a function if it's halted, otherwise leave it
+  untouched.
+  """
+  @spec or_else(t, step) :: t
+  def or_else(request, fun)
+
+  def or_else(%Request{halt: true} = request, fun), do: map(request, fun)
+
+  def or_else(%Request{halt: false} = request, _fun), do: request
 
   @doc """
   Maps `request` with each element in `pipeline` in order.
