@@ -38,9 +38,6 @@ defmodule Percussion.Request do
   @typedoc "The message which triggered this request."
   @type message_id :: term
 
-  @typedoc "The response to send to the user."
-  @type response :: String.t() | nil
-
   @typedoc "A single step in the pipeline."
   @type step :: (t -> into)
 
@@ -54,8 +51,7 @@ defmodule Percussion.Request do
           halt: halt,
           invoked_with: invoked_with,
           message: message,
-          message_id: message_id,
-          response: response
+          message_id: message_id
         }
 
   @enforce_keys [:invoked_with]
@@ -67,7 +63,6 @@ defmodule Percussion.Request do
     :invoked_with,
     :message,
     :message_id,
-    :response,
     after_send: [],
     arguments: [],
     assigns: %{},
@@ -87,11 +82,11 @@ defmodule Percussion.Request do
   """
   @spec reply(t, String.t()) :: t
   def reply(%Request{} = request, response) do
-    %Request{request | response: response}
+    assign(request, content: response)
   end
 
   @doc """
-  Halts the pipeline, preventing downstream pipes from being executed.
+  Halts the pipeline, preventing downstream steps from being executed.
   """
   @spec halt(t) :: t
   def halt(%Request{} = request) do
@@ -99,8 +94,8 @@ defmodule Percussion.Request do
   end
 
   @doc """
-  Halts the pipeline with the given response, preventing downstream pipes from
-  being executed.
+  Halts the pipeline with the given response, preventing downstream steps from being
+  executed.
 
   Equivalent to calling `halt/1` and `reply/2`.
   """
@@ -112,7 +107,7 @@ defmodule Percussion.Request do
   end
 
   @doc """
-  Resumes a halted pipeline.
+  Resumes an halted pipeline.
   """
   @spec resume(t) :: t
   def resume(%Request{} = request) do
@@ -181,16 +176,10 @@ defmodule Percussion.Request do
   end
 
   @doc """
-  Sends a response to the client using `callback`.
+  Executes the callbacks registered to be called after the request was sent.
   """
-  @spec send_response(t, step) :: t
-  def send_response(%Request{} = request, callback) do
-    request
-    |> callback.()
-    |> reduce(request.after_send)
-  end
-
-  defp reduce(request, pipeline) do
-    Enum.reduce(pipeline, request, &map(&2, &1))
+  @spec execute_after_send(t) :: t
+  def execute_after_send(%Request{} = request) do
+    Enum.reduce(request.after_send, request, &map(&2, &1))
   end
 end

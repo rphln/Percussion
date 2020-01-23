@@ -50,16 +50,17 @@ defmodule Percussion.Utils do
   @doc """
   Replies a request to the respective channel.
   """
-  @spec create_message(Request.t()) :: {:ok, Message.t()} | Api.error()
-  def create_message(%Request{} = request) do
-    Request.send_response(request, &do_create_message/1)
-  end
+  @spec create_message(Request.t()) :: Request.t()
+  def create_message(%Request{message: message, assigns: assigns} = request) do
+    opts = Map.take(assigns, [:content, :embed, :file])
 
-  defp do_create_message(%Request{response: response, message: message} = request) do
-    unless is_nil(response) do
-      Api.create_message(message, response)
-    end
+    response =
+      unless Enum.empty?(opts) do
+        Api.create_message!(message, opts)
+      end
 
     request
+    |> Request.assign(response: response)
+    |> Request.execute_after_send()
   end
 end
