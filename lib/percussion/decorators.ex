@@ -38,7 +38,7 @@ defmodule Percussion.Decorators do
   @doc """
   Prevents the command from being called in non-whitelisted guilds.
 
-  Note that it can still be used in DMs.
+  The command can still be used in direct messages.
   """
   @spec whitelist_guilds([Request.guild_id()]) :: Request.step()
   def whitelist_guilds(whitelist) do
