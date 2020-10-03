@@ -17,10 +17,8 @@ defmodule Percussion do
     quote do
       @behaviour Percussion.Command
 
+      alias Percussion.Decorators
       alias Percussion.Request
-
-      import Percussion.Decorators
-      import Percussion.Request
     end
   end
 end

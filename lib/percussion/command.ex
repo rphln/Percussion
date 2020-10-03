@@ -20,6 +20,11 @@ defmodule Percussion.Command do
   @callback call(request :: Request.t()) :: Request.into()
 
   @doc """
+  Returns a list of `t:Request.step/0` to execute before this command.
+  """
+  @callback pipe :: [Request.step()]
+
+  @doc """
   Returns the help message for this command.
   """
   @callback help :: String.t()
@@ -34,7 +39,7 @@ defmodule Percussion.Command do
   """
   @callback usage :: [String.t()]
 
-  @optional_callbacks help: 0, usage: 0, describe: 0
+  @optional_callbacks help: 0, usage: 0, describe: 0, pipe: 0
 
   @doc """
   Returns whether the specified `command` has a description.

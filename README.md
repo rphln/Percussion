@@ -8,7 +8,7 @@ transformation pipelines for command requests, being loosely inspired by Plug.
 The documentation can be found [here]. If you're looking for examples, see [Katsuragi].
 
   [here]: https://blindjoker.github.io/Percussion
-  [Katsuragi]: https://github.com/BlindJoker/Katsuragi
+  [Katsuragi]: https://github.com/rphln/Katsuragi
 
 ## About the pipeline.
 
@@ -36,7 +36,7 @@ try it, simply add it as a GitHub dependency.
 ```elixir
 def deps do
   [
-    {:percussion, github: "BlindJoker/Percussion"}
+    {:percussion, github: "rphln/Percussion"}
   ]
 end
 ```

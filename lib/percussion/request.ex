@@ -94,8 +94,8 @@ defmodule Percussion.Request do
   end
 
   @doc """
-  Halts the pipeline with the given response, preventing downstream steps from being
-  executed.
+  Halts the pipeline with the given response, preventing downstream steps from
+  being executed.
 
   Equivalent to calling `halt/1` and `reply/2`.
   """
@@ -117,8 +117,8 @@ defmodule Percussion.Request do
   @doc """
   Maps `request` by applying `fun` on it.
 
-  If the value returned by `fun` is a string, the request is halted with the returned
-  string as a response.
+  If the value returned by `fun` is a string, the request is halted with the
+  returned string as a response.
   """
   @spec map(t, step) :: t
   def map(%Request{} = request, fun) do
@@ -156,8 +156,8 @@ defmodule Percussion.Request do
   @doc """
   Maps `request` with each element in `pipeline` in order.
 
-  See `and_then/2`. This function terminates when `pipeline` is exhausted, or if any of
-  its elements halts the request.
+  See `and_then/2`. This function terminates when `pipeline` is exhausted, or if
+  any of its elements halts the request.
   """
   @spec pipe(t, [step]) :: t
   def pipe(%Request{} = request, pipeline) do
@@ -167,8 +167,8 @@ defmodule Percussion.Request do
   @doc """
   Registers a callback to be invoked after the response is sent.
 
-  Callbacks are invoked regardless of the request being halted, and are executed in
-  first-in, last-out order.
+  Callbacks are invoked regardless of the request being halted, and are executed
+  in first-in, last-out order.
   """
   @spec register_after_send(t, step) :: t
   def register_after_send(%Request{} = request, callback) do

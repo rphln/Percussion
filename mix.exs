@@ -1,7 +1,7 @@
 defmodule Percussion.MixProject do
   use Mix.Project
 
-  @version "0.9.0"
+  @version "0.10.0"
   @description "A command framework for Nostrum."
 
   def project do
@@ -11,15 +11,13 @@ defmodule Percussion.MixProject do
       app: :percussion,
       build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,
-
-      # Deps
       elixir: "~> 1.8",
       deps: deps(),
 
       # Docs
       docs: docs(),
       name: "Percussion",
-      source_url: "https://github.com/BlindJoker/Percussion",
+      source_url: "https://github.com/rphln/Percussion",
       homepage_url: "https://blindjoker.github.io/Percussion/"
     ]
   end
@@ -29,7 +27,7 @@ defmodule Percussion.MixProject do
       licenses: ["MIT"],
       maintainers: ["Raphael Nepomuceno"],
       links: %{
-        "GitHub" => "https://github.com/BlindJoker/Percussion/",
+        "GitHub" => "https://github.com/rphln/Percussion/",
         "Docs" => "https://blindjoker.github.io/Percussion/"
       }
     ]
@@ -38,10 +36,8 @@ defmodule Percussion.MixProject do
   defp deps do
     [
       {:nostrum, "~> 0.4", runtime: false},
-
-      # Development dependencies.
-      {:credo, "~> 1.1", only: :dev, runtime: false},
-      {:ex_doc, "~> 0.21", only: :dev, runtime: false}
+      {:ex_doc, "~> 0.22", only: :dev, runtime: false},
+      {:credo, "~> 1.5-pre", only: [:dev, :test], runtime: false}
     ]
   end
 
@@ -50,7 +46,7 @@ defmodule Percussion.MixProject do
       main: "readme",
       groups_for_modules: groups_for_modules(),
       source_ref: "v#{@version}",
-      source_url: "https://github.com/BlindJoker/Percussion",
+      source_url: "https://github.com/rphln/Percussion",
       extras: [
         "README.md"
       ]
